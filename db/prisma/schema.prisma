@@ -12,3 +12,16 @@ datasource db {
   provider = "postgres"
   url      = env("POSTGRES_URL")
 }
+
+model User {
+  id String @id @default(uuid())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  isAdmin Boolean @default(false)
+
+  username String @unique
+
+}
+

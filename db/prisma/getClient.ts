@@ -18,7 +18,6 @@ interface CustomNodeJsGlobal extends NodeJS.Global {
 declare const global: CustomNodeJsGlobal;
 
 const getClient = () => {
-  //   return new PrismaClient({ errorFormat: "pretty", log: ["query", "info"] });
   const Prisma =
     global.prisma ||
     new PrismaClient({
