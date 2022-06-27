@@ -3,6 +3,9 @@
   "description": "Self-hosted GUI for RDBMS",
   "version": "0.1.0",
   "private": false,
+  "prisma": {
+    "schema": "db/prisma/schema.prisma"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -14,18 +17,22 @@
     "psql-connect": "sudo -u postgres psql shotion"
   },
   "dependencies": {
+    "@prisma/client": "^3.15.2",
     "better-sqlite3": "^7.5.3",
     "next": "12.1.6",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
   "devDependencies": {
-    "@types/node": "18.0.0",
+    "@types/node": "^18.0.0",
     "@types/react": "18.0.14",
     "@types/react-dom": "18.0.5",
     "eslint": "8.18.0",
     "eslint-config-next": "12.1.6",
-    "typescript": "4.7.4"
+    "prisma": "^3.15.2",
+    "prisma-json-schema-generator": "^2.0.17",
+    "ts-node": "^10.8.1",
+    "typescript": "^4.7.4"
   },
   "keywords": [],
   "author": "",

@@ -1,0 +1,14 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["filterJson"]
+}
+
+generator jsonSchema {
+  provider = "prisma-json-schema-generator"
+  output   = "./"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "../shotion.sqlite3"
+}
