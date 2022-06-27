@@ -7,9 +7,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "create-sqlite": "node ./db/util/createSqliteDB.js",
+    "create-postgres": "sudo -u postgres createdb shotion -p 5432 -O postgres",
+    "psql-restart-cluster": "sudo pg_ctlcluster 14 main restart",
+    "psql-connect": "sudo -u postgres psql shotion"
   },
   "dependencies": {
+    "better-sqlite3": "^7.5.3",
     "next": "12.1.6",
     "react": "18.2.0",
     "react-dom": "18.2.0"
