@@ -18,6 +18,8 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
+      "@/components/*": ["src/components/*"],
+      "@/hooks/*": ["src/hooks/*"],
       "@/db/*": ["db/*"],
       "@/prisma/*": ["db/prisma/*"]
     }
