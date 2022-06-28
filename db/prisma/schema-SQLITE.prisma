@@ -23,5 +23,77 @@ model User {
 
   username String @unique
 
+  databases            Database[] @relation("CreatedDatabases")
+  pages                Page[]     @relation("CreatedPages")
+  blocks               Block[]    @relation("CreatedBlocks")
+  lastUpdatedDatabases Database[] @relation("LastUpdatedDatabases")
+  lastUpdatedPages     Page[]     @relation("LastUpdatedPages")
+  lastUpdatedBlocks    Block[]    @relation("LastUpdatedBlocks")
 }
 
+model Database {
+  object String @default("workspace") // || "database" 
+
+  id String @id @default(uuid())
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   User?    @relation("CreatedDatabases", fields: [createdById], references: [id])
+  updatedBy   User?    @relation("LastUpdatedDatabases", fields: [updatedById], references: [id])
+  createdById String?
+  updatedById String?
+
+  isInline Boolean @default(false)
+
+  title       String  // JSON -- RTO[]
+  description String  // JSON -- RTO[]
+  icon        String  // JSON -- File || Emoji
+  cover       String  // JSON -- File
+  properties  String  // JSON -- PROPERTY[]
+
+  parent  String      // JSON -- PARENT
+  views   String      // JSON -- React-Grid-Layout
+  layouts String      // JSON -- React-Grid-Layout
+}
+
+model Page {
+  object String @default("page")
+
+  id String @id @default(uuid())
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   User?    @relation("CreatedPages", fields: [createdById], references: [id])
+  updatedBy   User?    @relation("LastUpdatedPages", fields: [updatedById], references: [id])
+  createdById String?
+  updatedById String?
+
+  icon       String // JSON -- File || Emoji
+  cover      String // JSON -- File
+  properties String // JSON -- { [key/name: string]: PROPERTY }
+
+  parents  String   // JSON -- PARENT
+  children String   // JSON -- CHILD
+  layouts  String   // JSON -- React-Grid-Layout
+}
+
+model Block {
+  object String @default("block")
+
+  id String @id @default(uuid())
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   User?    @relation("CreatedBlocks", fields: [createdById], references: [id])
+  updatedBy   User?    @relation("LastUpdatedBlocks", fields: [updatedById], references: [id])
+  createdById String?
+  updatedById String?
+
+  type        String   // BLOCK TYPE
+  meta        String   // JSON 
+  hasChildren Boolean
+
+  parents  String      // JSON -- PARENT
+  children String      // JSON -- CHILD
+  layouts  String      // JSON -- React-Grid-Layout
+}

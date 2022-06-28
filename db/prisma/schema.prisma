@@ -23,5 +23,112 @@ model User {
 
   username String @unique
 
+  databases            Database[] @relation("CreatedDatabases")
+  pages                Page[]     @relation("CreatedPages")
+  blocks               Block[]    @relation("CreatedBlocks")
+  lastUpdatedDatabases Database[] @relation("LastUpdatedDatabases")
+  lastUpdatedPages     Page[]     @relation("LastUpdatedPages")
+  lastUpdatedBlocks    Block[]    @relation("LastUpdatedBlocks")
 }
 
+model Database {
+  object String @default("workspace") // || "database" 
+
+  id String @id @default(uuid())
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   User?    @relation("CreatedDatabases", fields: [createdById], references: [id])
+  updatedBy   User?    @relation("LastUpdatedDatabases", fields: [updatedById], references: [id])
+  createdById String?
+  updatedById String?
+
+  isInline Boolean @default(false)
+
+  title       Json // RTO[]
+  description Json // RTO[]
+  icon        Json // File || Emoji
+  cover       Json // File
+  properties  Json // PROPERTY[]
+
+  parent  Json // PARENT
+  views   Json // React-Grid-Layout
+  layouts Json // React-Grid-Layout
+}
+
+model Page {
+  object String @default("page")
+
+  id String @id @default(uuid())
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   User?    @relation("CreatedPages", fields: [createdById], references: [id])
+  updatedBy   User?    @relation("LastUpdatedPages", fields: [updatedById], references: [id])
+  createdById String?
+  updatedById String?
+
+  icon       Json // File || Emoji
+  cover      Json // File
+  properties Json // { [key/name: string]: PROPERTY }
+
+  parents  Json // PARENT
+  children Json // CHILD
+  layouts  Json // React-Grid-Layout
+}
+
+enum BLOCKTYPE {
+  PARAGRAPH
+  HEADING1
+  HEADING2
+  HEADING3
+  BULLETEDLISTITEM
+  NUMBEREDLISTITEM
+  TODO
+  TOGGLE
+  CODE
+  CHILDPAGE
+  CHILDDATABASE
+  EMBED
+  IMAGE
+  VIDEO
+  FILE
+  PDF
+  BOOKMARK
+  CALLOUT
+  QUOTE
+  EQUATION
+  DIVIDER
+  TABLEOFCONTENTS
+  BREADCRUMB
+  COLUMN
+  COLUMNLIST
+  LINKPREVIEW
+  SYNCEDBLOCK
+  TEMPLATE
+  LINKTOPAGE
+  TABLE
+  TABLEROW
+  UNSUPPORTED
+}
+
+model Block {
+  object String @default("block")
+
+  id String @id @default(uuid())
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   User?    @relation("CreatedBlocks", fields: [createdById], references: [id])
+  updatedBy   User?    @relation("LastUpdatedBlocks", fields: [updatedById], references: [id])
+  createdById String?
+  updatedById String?
+
+  type        BLOCKTYPE
+  meta        Json
+  hasChildren Boolean
+
+  parents  Json // PARENT
+  children Json // CHILD
+  layouts  Json // React-Grid-Layout
+}

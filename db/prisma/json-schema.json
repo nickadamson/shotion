@@ -21,6 +21,386 @@
         },
         "username": {
           "type": "string"
+        },
+        "databases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Database"
+          }
+        },
+        "pages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Page"
+          }
+        },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Block"
+          }
+        },
+        "lastUpdatedDatabases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Database"
+          }
+        },
+        "lastUpdatedPages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Page"
+          }
+        },
+        "lastUpdatedBlocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Block"
+          }
+        }
+      }
+    },
+    "Database": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "default": "workspace"
+        },
+        "id": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "createdBy": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/User"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "updatedBy": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/User"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "isInline": {
+          "type": "boolean",
+          "default": false
+        },
+        "title": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "description": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "icon": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "cover": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "properties": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "parent": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "views": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "layouts": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        }
+      }
+    },
+    "Page": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "default": "page"
+        },
+        "id": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "createdBy": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/User"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "updatedBy": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/User"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "icon": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "cover": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "properties": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "parents": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "children": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "layouts": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        }
+      }
+    },
+    "Block": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "type": "string",
+          "default": "block"
+        },
+        "id": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "createdBy": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/User"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "updatedBy": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/User"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "PARAGRAPH",
+            "HEADING1",
+            "HEADING2",
+            "HEADING3",
+            "BULLETEDLISTITEM",
+            "NUMBEREDLISTITEM",
+            "TODO",
+            "TOGGLE",
+            "CODE",
+            "CHILDPAGE",
+            "CHILDDATABASE",
+            "EMBED",
+            "IMAGE",
+            "VIDEO",
+            "FILE",
+            "PDF",
+            "BOOKMARK",
+            "CALLOUT",
+            "QUOTE",
+            "EQUATION",
+            "DIVIDER",
+            "TABLEOFCONTENTS",
+            "BREADCRUMB",
+            "COLUMN",
+            "COLUMNLIST",
+            "LINKPREVIEW",
+            "SYNCEDBLOCK",
+            "TEMPLATE",
+            "LINKTOPAGE",
+            "TABLE",
+            "TABLEROW",
+            "UNSUPPORTED"
+          ]
+        },
+        "meta": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "hasChildren": {
+          "type": "boolean"
+        },
+        "parents": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "children": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "layouts": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
         }
       }
     }
@@ -29,6 +409,15 @@
   "properties": {
     "user": {
       "$ref": "#/definitions/User"
+    },
+    "database": {
+      "$ref": "#/definitions/Database"
+    },
+    "page": {
+      "$ref": "#/definitions/Page"
+    },
+    "block": {
+      "$ref": "#/definitions/Block"
     }
   }
 }
