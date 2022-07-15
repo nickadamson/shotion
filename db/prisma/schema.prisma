@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["filterJson"]
+  previewFeatures = []
 }
 
 generator jsonSchema {
@@ -8,20 +8,15 @@ generator jsonSchema {
   output   = "./"
 }
 
-datasource db {
+datasource Db {
   provider = "postgres"
   url      = env("POSTGRES_URL")
 }
 
 model User {
-  id String @id @default(uuid())
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  isAdmin Boolean @default(false)
-
-  username String @unique
+  id       String  @id @default(uuid())
+  username String  @unique
+  isAdmin  Boolean @default(false)
 
   databases            Database[] @relation("CreatedDatabases")
   pages                Page[]     @relation("CreatedPages")
@@ -29,106 +24,189 @@ model User {
   lastUpdatedDatabases Database[] @relation("LastUpdatedDatabases")
   lastUpdatedPages     Page[]     @relation("LastUpdatedPages")
   lastUpdatedBlocks    Block[]    @relation("LastUpdatedBlocks")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Database {
-  object String @default("workspace") // || "database" 
+  id          String    @id @default(uuid())
+  object      String    @default("database")
+  isWorkspace Boolean   @default(false)
+  isInline    Boolean   @default(false)
+  type        BLOCKTYPE @default(database)
+  title       Json?
+  description Json?
+  icon        Json?
+  cover       Json?
 
-  id String @id @default(uuid())
+  properties    Property[] @relation("Columns")
+  views         View[]     @relation("Views")
+  parentPage    Page?      @relation("PageDbs", fields: [parentPageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parentPageId  String?
+  parentBlock   Block?     @relation("BlockDbs", fields: [parentBlockId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parentBlockId String?
+  childrenPages Page[]     @relation("Rows")
 
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  createdBy   User?    @relation("CreatedDatabases", fields: [createdById], references: [id])
-  updatedBy   User?    @relation("LastUpdatedDatabases", fields: [updatedById], references: [id])
+  createdBy   User?    @relation("CreatedDatabases", fields: [createdById], references: [id], onDelete: Cascade, onUpdate: Cascade)
   createdById String?
+  updatedAt   DateTime @updatedAt
+  updatedBy   User?    @relation("LastUpdatedDatabases", fields: [updatedById], references: [id], onDelete: Cascade, onUpdate: Cascade)
   updatedById String?
-
-  isInline Boolean @default(false)
-
-  title       Json // RTO[]
-  description Json // RTO[]
-  icon        Json // File || Emoji
-  cover       Json // File
-  properties  Json // PROPERTY[]
-
-  parent  Json // PARENT
-  views   Json // React-Grid-Layout
-  layouts Json // React-Grid-Layout
+  archived    Boolean  @default(false)
 }
 
 model Page {
-  object String @default("page")
+  id             String    @id @default(uuid())
+  object         String    @default("page")
+  isWorkspace    Boolean   @default(false)
+  type           BLOCKTYPE @default(page)
+  title          Json?
+  icon           Json?
+  cover          Json?
+  propertyValues Json?
 
-  id String @id @default(uuid())
+  format         Format?    @relation("PageFormat")
+  parentDb       Database?  @relation("Rows", fields: [parentDbId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parentDbId     String?
+  parentPage     Page?      @relation("PagePages", fields: [parentPageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parentPageId   String?
+  parentBlock    Block?     @relation("BlockPages", fields: [parentBlockId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parentBlockId  String?
+  childrenDbs    Database[] @relation("PageDbs")
+  childrenPages  Page[]     @relation("PagePages")
+  childrenBlocks Block[]    @relation("PageBlocks")
 
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  createdBy   User?    @relation("CreatedPages", fields: [createdById], references: [id])
-  updatedBy   User?    @relation("LastUpdatedPages", fields: [updatedById], references: [id])
+  createdBy   User?    @relation("CreatedPages", fields: [createdById], references: [id], onDelete: Cascade, onUpdate: Cascade)
   createdById String?
+  updatedAt   DateTime @updatedAt
+  updatedBy   User?    @relation("LastUpdatedPages", fields: [updatedById], references: [id], onDelete: Cascade, onUpdate: Cascade)
   updatedById String?
-
-  icon       Json // File || Emoji
-  cover      Json // File
-  properties Json // { [key/name: string]: PROPERTY }
-
-  parents  Json // PARENT
-  children Json // CHILD
-  layouts  Json // React-Grid-Layout
-}
-
-enum BLOCKTYPE {
-  PARAGRAPH
-  HEADING1
-  HEADING2
-  HEADING3
-  BULLETEDLISTITEM
-  NUMBEREDLISTITEM
-  TODO
-  TOGGLE
-  CODE
-  CHILDPAGE
-  CHILDDATABASE
-  EMBED
-  IMAGE
-  VIDEO
-  FILE
-  PDF
-  BOOKMARK
-  CALLOUT
-  QUOTE
-  EQUATION
-  DIVIDER
-  TABLEOFCONTENTS
-  BREADCRUMB
-  COLUMN
-  COLUMNLIST
-  LINKPREVIEW
-  SYNCEDBLOCK
-  TEMPLATE
-  LINKTOPAGE
-  TABLE
-  TABLEROW
-  UNSUPPORTED
+  archived    Boolean  @default(false)
 }
 
 model Block {
-  object String @default("block")
+  id      String    @id @default(uuid())
+  object  String    @default("block")
+  type    BLOCKTYPE @default(text)
+  details Json?
 
-  id String @id @default(uuid())
+  parentPage     Page?      @relation("PageBlocks", fields: [parentPageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parentPageId   String?
+  parentBlock    Block?     @relation("BlockBlocks", fields: [parentBlockId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parentBlockId  String?
+  childrenDbs    Database[] @relation("BlockDbs")
+  childrenPages  Page[]     @relation("BlockPages")
+  childrenBlocks Block[]    @relation("BlockBlocks")
 
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  createdBy   User?    @relation("CreatedBlocks", fields: [createdById], references: [id])
-  updatedBy   User?    @relation("LastUpdatedBlocks", fields: [updatedById], references: [id])
+  createdBy   User?    @relation("CreatedBlocks", fields: [createdById], references: [id], onDelete: Cascade, onUpdate: Cascade)
   createdById String?
+  updatedAt   DateTime @updatedAt
+  updatedBy   User?    @relation("LastUpdatedBlocks", fields: [updatedById], references: [id], onDelete: Cascade, onUpdate: Cascade)
   updatedById String?
+  archived    Boolean  @default(false)
+}
 
-  type        BLOCKTYPE
-  meta        Json
-  hasChildren Boolean
+model Property {
+  id      String       @id @default(uuid())
+  object  String       @default("property")
+  type    PROPERTYTYPE @default(text)
+  name    String?
+  details Json?
 
-  parents  Json // PARENT
-  children Json // CHILD
-  layouts  Json // React-Grid-Layout
+  parentDb   Database @relation("Columns", fields: [parentDbId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parentDbId String
+}
+
+model View {
+  id      String   @id @default(uuid())
+  object  String   @default("view")
+  type    VIEWTYPE @default(table)
+  default Boolean  @default(false)
+  name    String?
+
+  format     Format?   @relation("ViewFormat")
+  parentDb   Database? @relation("Views", fields: [parentDbId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parentDbId String?
+}
+
+model Format {
+  id      String @id @default(uuid())
+  object  String @default("format")
+  order   Json?
+  details Json?
+
+  parentView   View?   @relation("ViewFormat", fields: [parentViewId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parentViewId String? @unique
+  parentPage   Page?   @relation("PageFormat", fields: [parentPageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parentPageId String? @unique
+
+}
+
+enum BLOCKTYPE {
+  database
+  collectionView
+  collectionViewPage
+  page
+  childPage
+  childDatabase
+  table
+  tableRow
+  column
+  columnList
+  heading1
+  heading2
+  heading3
+  text
+  bulletedList
+  numberedList
+  toDo
+  quote
+  tableOfContents
+  divider
+  toggle
+  bookmark
+  equation
+  callout
+  image
+  embed
+  video
+  file
+  code
+  alias
+  other
+}
+
+enum PROPERTYTYPE {
+  title
+  text
+  number
+  select
+  multiSelect
+  date
+  person
+  file
+  checkbox
+  url
+  email
+  phoneNumber
+  formula
+  relation
+  createdTime
+  createdBy
+  lastEditedTime
+  lastEditedBy
+  other
+}
+
+enum VIEWTYPE {
+  table
+  gallery
+  list
+  board
+  calendar
+  other
 }

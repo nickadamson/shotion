@@ -1,38 +1,36 @@
 {
   "name": "shotion",
-  "description": "Self-hosted GUI for RDBMS",
+  "description": "Versatile Productivity App: Self-Hosted Edition",
   "version": "0.1.0",
   "private": false,
   "prisma": {
-    "schema": "db/prisma/schema.prisma"
+    "schema": "db/prisma/schema.prisma",
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} db/prisma/seed.ts"
   },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "seed": "npx prisma db seed",
+    "studio": "npx prisma studio",
+    "reseed": "npx prisma format && npx prisma generate && npx prisma migrate dev --name new",
     "create-sqlite": "node ./db/util/createSqliteDB.js",
     "create-postgres": "sudo -u postgres createdb shotion -p 5433 -O postgres",
     "psql-restart-cluster": "sudo pg_ctlcluster 12 main restart",
     "psql-connect": "sudo -u postgres psql shotion"
   },
   "dependencies": {
-    "@prisma/client": "^3.15.2",
-    "better-sqlite3": "^7.5.3",
-    "next": "12.1.6",
-    "notion-types": "^6.12.6",
+    "@prisma/client": "^4.0.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "swr": "^1.3.0"
   },
   "devDependencies": {
-    "@types/node": "^18.0.0",
-    "@types/react": "18.0.14",
-    "@types/react-dom": "18.0.5",
-    "eslint": "8.18.0",
-    "eslint-config-next": "12.1.6",
-    "prisma": "^3.15.2",
-    "prisma-json-schema-generator": "^2.0.17",
+    "better-sqlite3": "^7.6.1",
+    "eslint": "8.19.0",
+    "prisma": "^4.0.0",
+    "prisma-json-schema-generator": "^3.0.0",
     "ts-node": "^10.8.1",
     "typescript": "^4.7.4"
   },

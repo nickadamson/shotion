@@ -22,7 +22,12 @@ const getClient = () => {
     global.prisma ||
     new PrismaClient({
       errorFormat: "pretty",
-      log: ["query", "info", "warn", "error"],
+      log: [
+        // "query",
+        "info",
+        "warn",
+        "error",
+      ],
     });
 
   if (process.env.NODE_ENV === "development") {
