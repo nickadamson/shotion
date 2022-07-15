@@ -1,7 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
 import getClient from "@/prisma/getClient";
-import { Err } from "src/utils/types";
+import { ErrorMsg } from "src/utils/types";
 
 type Data = {
   provider: string;
@@ -11,7 +11,7 @@ const prisma = getClient();
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data | Err>
+  res: NextApiResponse<Data | ErrorMsg>
 ) {
   try {
     const provider = (prisma as any)?._activeProvider;

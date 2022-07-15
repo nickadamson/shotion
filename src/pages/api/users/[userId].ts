@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import getClient from "@/prisma/getClient";
 import { User } from "@prisma/client";
-import { Err } from "src/utils/types";
+import { ErrorMsg } from "src/utils/types";
 
 const prisma = getClient();
 
@@ -50,6 +50,7 @@ async function handleGET({
       res.status(404).json({ message: `User with id: ${userId} not found.` });
     }
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: `Internal Server Error`, err: error });
   }
 }
@@ -74,6 +75,7 @@ async function handlePUT({
 
     res.status(200).json(user);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: `Internal Server Error`, err: error });
   }
 }
@@ -95,6 +97,7 @@ async function handleDELETE({
       message: `${deletedUser.username} deleted successfully.`,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: `Internal Server Error`, err: error });
   }
 }

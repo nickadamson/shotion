@@ -1,15 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import getClient from "@/prisma/getClient";
-import { User } from "@prisma/client";
+import { Format } from "@prisma/client";
 import { ErrorMsg } from "src/utils/types";
 
 const prisma = getClient();
 
 export default async function handle(
   req: NextApiRequest,
-  res: NextApiResponse<User | User[] | Err>
+  res: NextApiResponse<Format | Format[] | Err>
 ) {
-  const userData: User = req?.body ? JSON.parse(req.body) : null;
+  const formatData: Format = req?.body ? JSON.parse(req.body) : null;
 
   switch (req.method) {
     case "GET":
@@ -17,7 +17,8 @@ export default async function handle(
       break;
 
     case "POST":
-      handlePOST({ userData, res });
+      console.log(req.body);
+      handlePOST({ formatData, res });
       break;
 
     default:
@@ -27,31 +28,31 @@ export default async function handle(
   }
 }
 
-// POST /api/users
+// POST /api/formats
 async function handlePOST({
-  userData,
+  formatData,
   res,
 }: {
-  userData: User;
-  res: NextApiResponse<User | Err>;
+  formatData: Format;
+  res: NextApiResponse<Format | Err>;
 }) {
   try {
-    const user = await prisma.user.create({
-      data: { ...userData },
+    const format = await prisma.format.create({
+      data: { ...formatData },
     });
 
-    res.status(200).json(user);
+    res.status(200).json(format);
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: `Internal Server Error`, err: error });
   }
 }
-// GET /api/users
-async function handleGET({ res }: { res: NextApiResponse<User[] | Err> }) {
+// GET /api/formats
+async function handleGET({ res }: { res: NextApiResponse<Format[] | Err> }) {
   try {
-    const allUsers = await prisma.user.findMany();
+    const allFormats = await prisma.format.findMany();
 
-    res.status(200).json(allUsers);
+    res.status(200).json(allFormats);
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: `Internal Server Error`, err: error });

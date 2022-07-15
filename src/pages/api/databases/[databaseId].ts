@@ -1,13 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import getClient from "@/prisma/getClient";
-import { Database } from "@prisma/client";
-import { Err } from "src/utils/types";
+import { Prisma as P, Database } from "@prisma/client";
+import { ErrorMsg } from "src/utils/types";
 
 const prisma = getClient();
 
+type ResponseData = DatabaseWithRelations | Database | ErrorMsg;
+
 export default async function handle(
   req: NextApiRequest,
-  res: NextApiResponse<Database | Err>
+  res: NextApiResponse<ResponseData>
 ) {
   const { databaseId } = req.query as { [key: string]: string };
   const databaseData: Database = req?.body ? JSON.parse(req.body) : null;
@@ -39,19 +41,14 @@ async function handleGET({
   res,
 }: {
   databaseId: string;
-  res: NextApiResponse<Database | Err>;
+  res: NextApiResponse<ResponseData>;
 }) {
   try {
-    const database = await findByIdOrDatabasename(databaseId);
+    const data = await getDatabaseWithRelations(databaseId);
 
-    if (database != null) {
-      res.status(200).json(database);
-    } else {
-      res
-        .status(404)
-        .json({ message: `Database with id: ${databaseId} not found.` });
-    }
+    res.status(200).json(data);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: `Internal Server Error`, err: error });
   }
 }
@@ -64,18 +61,14 @@ async function handlePUT({
 }: {
   databaseId: string;
   databaseData: Database;
-  res: NextApiResponse<Database | Err>;
+  res: NextApiResponse<ResponseData>;
 }) {
   try {
-    const database = await prisma.database.update({
-      where: {
-        id: databaseId,
-      },
-      data: databaseData,
-    });
+    const data = await updateDatabase(databaseId, databaseData);
 
-    res.status(200).json(database);
+    res.status(200).json(data);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: `Internal Server Error`, err: error });
   }
 }
@@ -86,40 +79,67 @@ async function handleDELETE({
   res,
 }: {
   databaseId: string;
-  res: NextApiResponse<Database | Err>;
+  res: NextApiResponse<ResponseData>;
 }) {
   try {
-    const deletedDatabase = await prisma.database.delete({
-      where: { id: databaseId },
+    const deletedDatabase = await updateDatabase(databaseId, {
+      archived: true,
     });
 
     res.status(200).json({
-      message: `${deletedDatabase.databasename} deleted successfully.`,
+      message: `${deletedDatabase.id} archived successfully.`,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: `Internal Server Error`, err: error });
   }
 }
 
-// helpers
-async function findByIdOrDatabasename(
-  idOrDatabasename: string
-): Promise<Database | null> {
-  let database;
+export type DatabaseWithRelations = P.DatabaseGetPayload<
+  typeof dbIncludeRelations
+>;
 
-  try {
-    database = await prisma.database.findUnique({
-      where: { id: idOrDatabasename },
-      rejectOnNotFound: true,
-    });
-  } catch (error) {
-    try {
-      database = await prisma.database.findUnique({
-        where: { databasename: idOrDatabasename },
-        rejectOnNotFound: true,
-      });
-    } catch (error) {}
-  }
+const dbIncludeRelations = P.validator<P.DatabaseArgs>()({
+  include: {
+    properties: true,
+    views: {
+      include: {
+        format: true,
+      },
+    },
+    childrenPages: {
+      where: { archived: false },
+    },
+  },
+});
 
-  return database;
+async function getDatabaseWithRelations(
+  databaseId: string
+): Promise<DatabaseWithRelations> {
+  return await prisma.database.findUniqueOrThrow({
+    where: { id: databaseId },
+    ...dbIncludeRelations,
+  });
+}
+
+async function updateDatabase(
+  databaseId: string,
+  databaseData: P.DatabaseUpdateInput
+) {
+  return await prisma.database.update({
+    where: {
+      id: databaseId,
+    },
+    data: {
+      object: databaseData?.object || undefined,
+      isWorkspace: databaseData?.isWorkspace || undefined,
+      isInline: databaseData?.isInline || undefined,
+      archived: databaseData?.archived || undefined,
+      type: databaseData?.type || undefined,
+      title: databaseData?.title || undefined,
+      description: databaseData?.description || undefined,
+      icon: databaseData?.icon || undefined,
+      cover: databaseData?.cover || undefined,
+    },
+  });
 }

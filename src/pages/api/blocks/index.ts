@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import getClient from "@/prisma/getClient";
 import { Block } from "@prisma/client";
-import { Err } from "src/utils/types";
+import { ErrorMsg } from "src/utils/types";
 
 const prisma = getClient();
 
@@ -42,6 +42,7 @@ async function handlePOST({
 
     res.status(200).json(block);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: `Internal Server Error`, err: error });
   }
 }
@@ -52,6 +53,7 @@ async function handleGET({ res }: { res: NextApiResponse<Block[] | Err> }) {
 
     res.status(200).json(allBlocks);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: `Internal Server Error`, err: error });
   }
 }

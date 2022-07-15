@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import getClient from "@/prisma/getClient";
 import { Database } from "@prisma/client";
-import { Err } from "src/utils/types";
+import { ErrorMsg } from "src/utils/types";
 
 const prisma = getClient();
 
@@ -10,7 +10,6 @@ export default async function handle(
   res: NextApiResponse<Database | Database[] | Err>
 ) {
   const databaseData: Database = req?.body ? JSON.parse(req.body) : null;
-
   switch (req.method) {
     case "GET":
       handleGET({ res });
@@ -42,6 +41,7 @@ async function handlePOST({
 
     res.status(200).json(database);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: `Internal Server Error`, err: error });
   }
 }
@@ -52,6 +52,7 @@ async function handleGET({ res }: { res: NextApiResponse<Database[] | Err> }) {
 
     res.status(200).json(allDatabases);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: `Internal Server Error`, err: error });
   }
 }

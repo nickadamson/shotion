@@ -1,13 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import getClient from "@/prisma/getClient";
-import { Page } from "@prisma/client";
-import { Err } from "src/utils/types";
+import { Prisma as P, Page, Database, Block } from "@prisma/client";
+import { ErrorMsg } from "src/utils/types";
 
 const prisma = getClient();
 
+type ResponseData = FormattedPageWRelations | Page | ErrorMsg;
+
 export default async function handle(
   req: NextApiRequest,
-  res: NextApiResponse<Page | Err>
+  res: NextApiResponse<ResponseData>
 ) {
   const { pageId } = req.query as { [key: string]: string };
   const pageData: Page = req?.body ? JSON.parse(req.body) : null;
@@ -39,17 +41,14 @@ async function handleGET({
   res,
 }: {
   pageId: string;
-  res: NextApiResponse<Page | Err>;
+  res: NextApiResponse<ResponseData>;
 }) {
   try {
-    const page = await findByIdOrPagename(pageId);
+    const data = await getPageWithRelations(pageId);
 
-    if (page != null) {
-      res.status(200).json(page);
-    } else {
-      res.status(404).json({ message: `Page with id: ${pageId} not found.` });
-    }
+    res.status(200).json(formatChildren(data));
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: `Internal Server Error`, err: error });
   }
 }
@@ -62,18 +61,14 @@ async function handlePUT({
 }: {
   pageId: string;
   pageData: Page;
-  res: NextApiResponse<Page | Err>;
+  res: NextApiResponse<ResponseData>;
 }) {
   try {
-    const page = await prisma.page.update({
-      where: {
-        id: pageId,
-      },
-      data: pageData,
-    });
+    const data = await updatePage(pageId, pageData);
 
-    res.status(200).json(page);
+    res.status(200).json(data);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: `Internal Server Error`, err: error });
   }
 }
@@ -84,38 +79,94 @@ async function handleDELETE({
   res,
 }: {
   pageId: string;
-  res: NextApiResponse<Page | Err>;
+  res: NextApiResponse<ResponseData>;
 }) {
   try {
-    const deletedPage = await prisma.page.delete({
-      where: { id: pageId },
-    });
+    const deletedPage = await updatePage(pageId, { archived: true });
 
     res.status(200).json({
-      message: `${deletedPage.pagename} deleted successfully.`,
+      message: `${deletedPage.id} archived successfully.`,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: `Internal Server Error`, err: error });
   }
 }
 
-// helpers
-async function findByIdOrPagename(idOrPagename: string): Promise<Page | null> {
-  let page;
+type PageWithRelations = P.PageGetPayload<typeof pageIncludeRelations>;
 
-  try {
-    page = await prisma.page.findUnique({
-      where: { id: idOrPagename },
-      rejectOnNotFound: true,
-    });
-  } catch (error) {
-    try {
-      page = await prisma.page.findUnique({
-        where: { pagename: idOrPagename },
-        rejectOnNotFound: true,
-      });
-    } catch (error) {}
-  }
+const pageIncludeRelations = P.validator<P.PageArgs>()({
+  include: {
+    format: true,
+    childrenDbs: {
+      select: {
+        id: true,
+        object: true,
+        type: true,
+      },
+    },
+    childrenPages: {
+      select: {
+        id: true,
+        object: true,
+        type: true,
+      },
+    },
+    childrenBlocks: {
+      select: {
+        id: true,
+        object: true,
+        type: true,
+      },
+    },
+  },
+});
 
-  return page;
+async function getPageWithRelations(
+  pageId: string
+): Promise<PageWithRelations> {
+  return await prisma.page.findUniqueOrThrow({
+    where: { id: pageId },
+    ...pageIncludeRelations,
+  });
+}
+
+type Child = Pick<Database | Page | Block, "id" & "object" & "type">;
+
+export type FormattedPageWRelations = Omit<
+  PageWithRelations,
+  "childrenDbs" & "childrenPages" & "childrenBlocks"
+> & { children: Array<Child> };
+
+function formatChildren(data: PageWithRelations): FormattedPageWRelations {
+  let formattedPage: FormattedPageWRelations = { ...data, children: [] };
+  formattedPage["children"] = [
+    ...(data?.childrenDbs as Pick<Database, "id" & "object" & "type">[]),
+    ...(data?.childrenPages as Pick<Page, "id" & "object" & "type">[]),
+    ...(data?.childrenBlocks as Pick<Block, "id" & "object" & "type">[]),
+  ];
+
+  delete data.childrenBlocks;
+  delete data.childrenPages;
+  delete data.childrenDbs;
+
+  return formattedPage;
+}
+
+async function updatePage(pageId: string, pageData: P.PageUpdateInput) {
+  return await prisma.page.update({
+    where: {
+      id: pageId,
+    },
+    data: {
+      object: pageData?.object || undefined,
+      isWorkspace: pageData?.isWorkspace || undefined,
+      archived: pageData?.archived || undefined,
+      type: pageData?.type || undefined,
+      title: pageData?.title || undefined,
+      icon: pageData?.icon || undefined,
+      cover: pageData?.cover || undefined,
+      propertyValues: pageData?.propertyValues || undefined,
+    },
+  });
 }

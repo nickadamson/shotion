@@ -1,13 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import getClient from "@/prisma/getClient";
-import { Block } from "@prisma/client";
-import { Err } from "src/utils/types";
+import { Prisma as P, Block, Database, Page } from "@prisma/client";
+import { ErrorMsg } from "src/utils/types";
 
 const prisma = getClient();
 
+type ResponseData = FormattedBlockWRelations | Block | ErrorMsg;
+
 export default async function handle(
   req: NextApiRequest,
-  res: NextApiResponse<Block | Err>
+  res: NextApiResponse
 ) {
   const { blockId } = req.query as { [key: string]: string };
   const blockData: Block = req?.body ? JSON.parse(req.body) : null;
@@ -39,17 +41,14 @@ async function handleGET({
   res,
 }: {
   blockId: string;
-  res: NextApiResponse<Block | Err>;
+  res: NextApiResponse;
 }) {
   try {
-    const block = await findByIdOrBlockname(blockId);
+    const data = await getBlockWithRelations(blockId);
 
-    if (block != null) {
-      res.status(200).json(block);
-    } else {
-      res.status(404).json({ message: `Block with id: ${blockId} not found.` });
-    }
+    res.status(200).json(formatChildren(data));
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: `Internal Server Error`, err: error });
   }
 }
@@ -62,18 +61,14 @@ async function handlePUT({
 }: {
   blockId: string;
   blockData: Block;
-  res: NextApiResponse<Block | Err>;
+  res: NextApiResponse;
 }) {
   try {
-    const block = await prisma.block.update({
-      where: {
-        id: blockId,
-      },
-      data: blockData,
-    });
+    const block = await updateBlock(blockId, blockData);
 
     res.status(200).json(block);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: `Internal Server Error`, err: error });
   }
 }
@@ -84,40 +79,88 @@ async function handleDELETE({
   res,
 }: {
   blockId: string;
-  res: NextApiResponse<Block | Err>;
+  res: NextApiResponse;
 }) {
   try {
-    const deletedBlock = await prisma.block.delete({
-      where: { id: blockId },
-    });
+    const deletedBlock = await updateBlock(blockId, { archived: true });
 
     res.status(200).json({
-      message: `${deletedBlock.blockname} deleted successfully.`,
+      message: `${deletedBlock.id} archived successfully.`,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: `Internal Server Error`, err: error });
   }
 }
 
-// helpers
-async function findByIdOrBlockname(
-  idOrBlockname: string
-): Promise<Block | null> {
-  let block;
+type BlockWithRelations = P.BlockGetPayload<typeof blockIncludeRelations>;
 
-  try {
-    block = await prisma.block.findUnique({
-      where: { id: idOrBlockname },
-      rejectOnNotFound: true,
-    });
-  } catch (error) {
-    try {
-      block = await prisma.block.findUnique({
-        where: { blockname: idOrBlockname },
-        rejectOnNotFound: true,
-      });
-    } catch (error) {}
-  }
+const blockIncludeRelations = P.validator<P.BlockArgs>()({
+  include: {
+    childrenDbs: {
+      select: {
+        id: true,
+        object: true,
+        type: true,
+      },
+    },
+    childrenPages: {
+      select: {
+        id: true,
+        object: true,
+        type: true,
+      },
+    },
+    childrenBlocks: {
+      select: {
+        id: true,
+        object: true,
+        type: true,
+      },
+    },
+  },
+});
 
-  return block;
+async function getBlockWithRelations(
+  blockId: string
+): Promise<BlockWithRelations> {
+  return await prisma.block.findUniqueOrThrow({
+    where: { id: blockId },
+    ...blockIncludeRelations,
+  });
+}
+
+type Child = Pick<Database | Page | Block, "id" & "object" & "type">;
+
+export type FormattedBlockWRelations = Omit<
+  BlockWithRelations,
+  "childrenDbs" & "childrenPages" & "childrenBlocks"
+> & { children: Array<Child> };
+
+function formatChildren(data: BlockWithRelations): FormattedBlockWRelations {
+  let formattedBlock: FormattedBlockWRelations = { ...data, children: [] };
+  formattedBlock["children"] = [
+    ...(data?.childrenDbs as Pick<Database, "id" & "object" & "type">[]),
+    ...(data?.childrenPages as Pick<Page, "id" & "object" & "type">[]),
+    ...(data?.childrenBlocks as Pick<Block, "id" & "object" & "type">[]),
+  ];
+
+  delete data.childrenBlocks;
+  delete data.childrenPages;
+  delete data.childrenDbs;
+
+  return formattedBlock;
+}
+
+async function updateBlock(blockId: string, blockData: P.BlockUpdateInput) {
+  return await prisma.block.update({
+    where: {
+      id: blockId,
+    },
+    data: {
+      archived: blockData?.archived || undefined,
+      type: blockData?.type || undefined,
+      details: blockData?.details || undefined,
+    },
+  });
 }

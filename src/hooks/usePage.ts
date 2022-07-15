@@ -1,17 +1,18 @@
+import { FormattedPageWRelations } from "./../pages/api/pages/[pageId]";
 import useSWR from "swr";
-import { User } from "@prisma/client";
+import { Page } from "@prisma/client";
 import { fetcher } from "src/utils/index";
 
-const useUser = ({ userId }: { userId?: string }) => {
-  const url = `/api/users${userId ? `/${userId}` : ""}`;
-  const { data, error } = useSWR<User>(url, fetcher);
+const usePage = ({ pageId }: { pageId: string }) => {
+  const url = `/api/pages/${pageId}`;
+  const { data, error } = useSWR<FormattedPageWRelations>(url, fetcher);
 
   const state = {
     isLoading: !error && !data,
     isError: error,
   };
 
-  const updateUser = async (updated: User): Promise<boolean> => {
+  const updatePage = async (updated: Partial<Page>): Promise<boolean> => {
     try {
       await fetch(url, { method: "PUT", body: JSON.stringify(updated) });
       return true;
@@ -21,7 +22,7 @@ const useUser = ({ userId }: { userId?: string }) => {
     }
   };
 
-  const deleteUser = async () => {
+  const deletePage = async () => {
     try {
       await fetch(url, { method: "DELETE" });
       return true;
@@ -32,15 +33,15 @@ const useUser = ({ userId }: { userId?: string }) => {
   };
 
   const functions = {
-    updateUser,
-    deleteUser,
+    updatePage,
+    deletePage,
   };
 
   return {
-    user: { ...data },
+    page: data,
     ...state,
     ...functions,
   };
 };
 
-export default useUser;
+export default usePage;

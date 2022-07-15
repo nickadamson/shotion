@@ -1,15 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import getClient from "@/prisma/getClient";
-import { User } from "@prisma/client";
+import { Property } from "@prisma/client";
 import { ErrorMsg } from "src/utils/types";
 
 const prisma = getClient();
 
 export default async function handle(
   req: NextApiRequest,
-  res: NextApiResponse<User | User[] | Err>
+  res: NextApiResponse<Property | Property[] | Err>
 ) {
-  const userData: User = req?.body ? JSON.parse(req.body) : null;
+  const propertyData: Property = req?.body ? JSON.parse(req.body) : null;
 
   switch (req.method) {
     case "GET":
@@ -17,7 +17,7 @@ export default async function handle(
       break;
 
     case "POST":
-      handlePOST({ userData, res });
+      handlePOST({ propertyData, res });
       break;
 
     default:
@@ -27,31 +27,31 @@ export default async function handle(
   }
 }
 
-// POST /api/users
+// POST /api/properties
 async function handlePOST({
-  userData,
+  propertyData,
   res,
 }: {
-  userData: User;
-  res: NextApiResponse<User | Err>;
+  propertyData: Property;
+  res: NextApiResponse<Property | Err>;
 }) {
   try {
-    const user = await prisma.user.create({
-      data: { ...userData },
+    const property = await prisma.property.create({
+      data: { ...propertyData },
     });
 
-    res.status(200).json(user);
+    res.status(200).json(property);
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: `Internal Server Error`, err: error });
   }
 }
-// GET /api/users
-async function handleGET({ res }: { res: NextApiResponse<User[] | Err> }) {
+// GET /api/properties
+async function handleGET({ res }: { res: NextApiResponse<Property[] | Err> }) {
   try {
-    const allUsers = await prisma.user.findMany();
+    const allProperties = await prisma.property.findMany();
 
-    res.status(200).json(allUsers);
+    res.status(200).json(allProperties);
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: `Internal Server Error`, err: error });

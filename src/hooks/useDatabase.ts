@@ -1,17 +1,20 @@
+import { DatabaseWithRelations } from "./../pages/api/databases/[databaseId]";
 import useSWR from "swr";
-import { User } from "@prisma/client";
+import { Database } from "@prisma/client";
 import { fetcher } from "src/utils/index";
 
-const useUser = ({ userId }: { userId?: string }) => {
-  const url = `/api/users${userId ? `/${userId}` : ""}`;
-  const { data, error } = useSWR<User>(url, fetcher);
+const useDatabase = ({ databaseId }: { databaseId?: string }) => {
+  const url = `/api/databases/${databaseId}`;
+  const { data, error } = useSWR<DatabaseWithRelations>(url, fetcher);
 
   const state = {
     isLoading: !error && !data,
     isError: error,
   };
 
-  const updateUser = async (updated: User): Promise<boolean> => {
+  const updateDatabase = async (
+    updated: Partial<Database>
+  ): Promise<boolean> => {
     try {
       await fetch(url, { method: "PUT", body: JSON.stringify(updated) });
       return true;
@@ -21,7 +24,7 @@ const useUser = ({ userId }: { userId?: string }) => {
     }
   };
 
-  const deleteUser = async () => {
+  const deleteDatabase = async () => {
     try {
       await fetch(url, { method: "DELETE" });
       return true;
@@ -32,15 +35,15 @@ const useUser = ({ userId }: { userId?: string }) => {
   };
 
   const functions = {
-    updateUser,
-    deleteUser,
+    updateDatabase,
+    deleteDatabase,
   };
 
   return {
-    user: { ...data },
+    database: data,
     ...state,
     ...functions,
   };
 };
 
-export default useUser;
+export default useDatabase;

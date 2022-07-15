@@ -1,17 +1,18 @@
 import useSWR from "swr";
-import { User } from "@prisma/client";
+import { Block } from "@prisma/client";
 import { fetcher } from "src/utils/index";
+import { FormattedBlockWRelations } from "src/pages/api/blocks/[blockId]";
 
-const useUser = ({ userId }: { userId?: string }) => {
-  const url = `/api/users${userId ? `/${userId}` : ""}`;
-  const { data, error } = useSWR<User>(url, fetcher);
+const useBlock = ({ blockId }: { blockId?: string }) => {
+  const url = `/api/blocks${blockId ? `/${blockId}` : ""}`;
+  const { data, error } = useSWR<FormattedBlockWRelations>(url, fetcher);
 
   const state = {
     isLoading: !error && !data,
     isError: error,
   };
 
-  const updateUser = async (updated: User): Promise<boolean> => {
+  const updateBlock = async (updated: Partial<Block>): Promise<boolean> => {
     try {
       await fetch(url, { method: "PUT", body: JSON.stringify(updated) });
       return true;
@@ -21,7 +22,7 @@ const useUser = ({ userId }: { userId?: string }) => {
     }
   };
 
-  const deleteUser = async () => {
+  const deleteBlock = async () => {
     try {
       await fetch(url, { method: "DELETE" });
       return true;
@@ -32,15 +33,15 @@ const useUser = ({ userId }: { userId?: string }) => {
   };
 
   const functions = {
-    updateUser,
-    deleteUser,
+    updateBlock,
+    deleteBlock,
   };
 
   return {
-    user: { ...data },
+    block: data,
     ...state,
     ...functions,
   };
 };
 
-export default useUser;
+export default useBlock;
