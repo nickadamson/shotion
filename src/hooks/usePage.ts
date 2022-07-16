@@ -1,7 +1,7 @@
 import { FormattedPageWRelations } from "./../pages/api/pages/[pageId]";
 import useSWR from "swr";
 import { Page } from "@prisma/client";
-import { fetcher } from "src/utils/index";
+import { fetcher } from "src/utils/api";
 
 const usePage = ({ pageId }: { pageId: string }) => {
     const url = `/api/pages/${pageId}`;

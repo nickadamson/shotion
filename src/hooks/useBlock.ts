@@ -1,6 +1,6 @@
 import useSWR from "swr";
 import { Block } from "@prisma/client";
-import { fetcher } from "src/utils/index";
+import { fetcher } from "src/utils/api";
 import { FormattedBlockWRelations } from "src/pages/api/blocks/[blockId]";
 
 const useBlock = ({ blockId }: { blockId?: string }) => {

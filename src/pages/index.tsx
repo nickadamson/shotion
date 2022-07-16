@@ -16,6 +16,7 @@ const Home: NextPage = () => {
             setRootPage(workspaces[0]);
         }
     }, [workspacesMemoed, rootPage, spacesError, spacesLoading, workspaces]);
+    console.log(workspaces);
 
     return (
         <>

@@ -1,7 +1,7 @@
 import { DatabaseWithRelations } from "./../pages/api/databases/[databaseId]";
 import useSWR from "swr";
 import { Database } from "@prisma/client";
-import { fetcher } from "src/utils/index";
+import { fetcher } from "src/utils/api";
 
 const useDatabase = ({ databaseId }: { databaseId?: string }) => {
     const url = `/api/databases/${databaseId}`;

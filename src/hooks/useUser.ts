@@ -1,6 +1,6 @@
 import useSWR from "swr";
 import { User } from "@prisma/client";
-import { fetcher } from "src/utils/index";
+import { fetcher } from "src/utils/api";
 
 const useUser = ({ userId }: { userId?: string }) => {
     const url = `/api/users${userId ? `/${userId}` : ""}`;

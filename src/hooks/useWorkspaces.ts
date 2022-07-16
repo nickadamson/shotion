@@ -1,5 +1,5 @@
 import useSWR from "swr";
-import { fetcher } from "src/utils/index";
+import { fetcher } from "src/utils/api";
 import { Database, Page } from "@prisma/client";
 import { DatabaseSelect, PageSelect } from "src/pages/api/workspaces";
 
