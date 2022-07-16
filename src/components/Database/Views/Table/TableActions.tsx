@@ -18,7 +18,10 @@ const TableActions: FC<TableActionsProps> = ({ table, header, column }) => {
             databaseId: meta.databaseId,
             childrenPages:
                 table?.getRowModel().rows?.map((row) => {
-                    return { id: row.original.id, propertyValues: row.original.propertyValues };
+                    return {
+                        id: row.original.id,
+                        propertyValues: row.original.propertyValues,
+                    };
                 }) ?? null,
             views: meta.views,
         });

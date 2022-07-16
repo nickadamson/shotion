@@ -40,7 +40,7 @@ async function handlePOST({ pageData, res }: { pageData: Page; res: NextApiRespo
         res.status(200).json(page);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error });
+        res.status(500).json({ message: `Internal Server Error`, err: error as string });
     }
 }
 // GET /api/pages
@@ -57,7 +57,7 @@ async function handleGET({ res }: { res: NextApiResponse<Page[] | ErrorMsg> }) {
         res.status(200).json(allPages);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error });
+        res.status(500).json({ message: `Internal Server Error`, err: error as string });
     }
 }
 

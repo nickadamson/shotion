@@ -3,9 +3,9 @@ import getClient from "@/prisma/getClient";
 import { Format } from "@prisma/client";
 import { ErrorMsg } from "src/utils/types";
 
-const prisma = getClient();
+const { prisma } = getClient();
 
-export default async function handle(req: NextApiRequest, res: NextApiResponse<Format | Format[] | Err>) {
+export default async function handle(req: NextApiRequest, res: NextApiResponse<Format | Format[] | ErrorMsg>) {
     const formatData: Format = req?.body ? JSON.parse(req.body) : null;
 
     switch (req.method) {
@@ -26,7 +26,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse<F
 }
 
 // POST /api/formats
-async function handlePOST({ formatData, res }: { formatData: Format; res: NextApiResponse<Format | Err> }) {
+async function handlePOST({ formatData, res }: { formatData: Format; res: NextApiResponse<Format | ErrorMsg> }) {
     try {
         const format = await prisma.format.create({
             data: { ...formatData },
@@ -35,17 +35,17 @@ async function handlePOST({ formatData, res }: { formatData: Format; res: NextAp
         res.status(200).json(format);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error });
+        res.status(500).json({ message: `Internal Server Error`, err: error as string });
     }
 }
 // GET /api/formats
-async function handleGET({ res }: { res: NextApiResponse<Format[] | Err> }) {
+async function handleGET({ res }: { res: NextApiResponse<Format[] | ErrorMsg> }) {
     try {
         const allFormats = await prisma.format.findMany();
 
         res.status(200).json(allFormats);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error });
+        res.status(500).json({ message: `Internal Server Error`, err: error as string });
     }
 }

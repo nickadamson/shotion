@@ -25,5 +25,5 @@
         }
     },
     "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-    "exclude": [".github", ".next", ".husky", ".vscode", "node_modules"]
+    "exclude": [".github", ".next", ".husky", ".vscode", "node_modules", "public"]
 }

@@ -3,7 +3,7 @@ import getClient from "@/prisma/getClient";
 import { Prisma as P } from "@prisma/client";
 import { ErrorMsg } from "src/utils/types";
 
-const prisma = getClient();
+const { prisma } = getClient();
 
 export type WorkspaceResponseData = Array<DatabaseSelect | PageSelect> | ErrorMsg;
 
@@ -11,7 +11,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse<W
     console.log("workspaces GET");
     switch (req.method) {
         case "GET":
-            handleGET({ res });
+            await handleGET({ res });
             break;
 
         default:
@@ -24,16 +24,16 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse<W
 // GET /api/workspaces
 async function handleGET({ res }: { res: NextApiResponse<WorkspaceResponseData> }) {
     try {
-        let dbs = await getWorkspaceDbs();
-        let pages = await getWorkspacePages();
+        const dbs = await getWorkspaceDbs();
+        const pages = await getWorkspacePages();
 
         const data = [...dbs, ...pages];
-        console.log(data);
 
         res.status(200).json(data);
     } catch (error) {
+        console.log("get some fak");
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error });
+        res.status(500).json({ message: `Internal Server Error`, err: error as string });
     }
 }
 
@@ -64,13 +64,23 @@ const pageSelections = P.validator<P.PageFindManyArgs>()({
 });
 
 async function getWorkspaceDbs(): Promise<DatabaseSelect[]> {
-    return await prisma.database.findMany({
-        ...dbSelections,
-    });
+    try {
+        return await prisma.database.findMany({
+            ...dbSelections,
+        });
+    } catch (error) {
+        console.log(error);
+        return [];
+    }
 }
 
 async function getWorkspacePages(): Promise<PageSelect[]> {
-    return await prisma.page.findMany({
-        ...pageSelections,
-    });
+    try {
+        return await prisma.page.findMany({
+            ...pageSelections,
+        });
+    } catch (error) {
+        console.log(error);
+        return [];
+    }
 }

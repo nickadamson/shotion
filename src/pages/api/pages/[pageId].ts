@@ -53,7 +53,7 @@ async function handleGET({ pageId, res }: { pageId: string; res: NextApiResponse
         res.status(200).json(formatChildren(data));
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error });
+        res.status(500).json({ message: `Internal Server Error`, err: error as string });
     }
 }
 
@@ -76,7 +76,7 @@ async function handlePUT({
         res.status(200).json(data);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error });
+        res.status(500).json({ message: `Internal Server Error`, err: error as string });
     }
 }
 
@@ -90,7 +90,7 @@ async function handleDELETE({ pageId, res }: { pageId: string; res: NextApiRespo
         });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error });
+        res.status(500).json({ message: `Internal Server Error`, err: error as string });
     }
 }
 

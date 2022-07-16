@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import getClient from "@/prisma/getClient";
 import { View } from "@prisma/client";
 
-const prisma = getClient();
+const { prisma } = getClient();
 
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
     const { viewId } = req.query as { [key: string]: string };
@@ -39,7 +39,7 @@ async function handleGET({ viewId, res }: { viewId: string; res: NextApiResponse
         res.status(200).json(data);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error });
+        res.status(500).json({ message: `Internal Server Error`, err: error as string });
     }
 }
 
@@ -56,7 +56,7 @@ async function handlePUT({ viewId, viewData, res }: { viewId: string; viewData: 
         res.status(200).json(view);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error });
+        res.status(500).json({ message: `Internal Server Error`, err: error as string });
     }
 }
 
@@ -72,6 +72,6 @@ async function handleDELETE({ viewId, res }: { viewId: string; res: NextApiRespo
         });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error });
+        res.status(500).json({ message: `Internal Server Error`, err: error as string });
     }
 }

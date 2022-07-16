@@ -1,49 +1,6 @@
-import TableActions from "@/components/Database/Views/Table/TableActions";
-import { View } from "@prisma/client";
-import {
-    ColumnDef,
-    ColumnOrderState,
-    ColumnResizeMode,
-    ColumnSizingState,
-    VisibilityState,
-} from "@tanstack/react-table";
-import { DatabaseWithRelations } from "src/pages/api/databases/[databaseId]";
+import { ColumnDef } from "@tanstack/react-table";
 import { FormattedPageWRelations } from "src/pages/api/pages/[pageId]";
-import { ParsedFormatting } from "src/utils/types";
-
-export type DatabaseAction = {
-    type: "COLUMN_VISIBILITY" | "COLUMN_ORDER";
-    payload?: {
-        newDb?: Partial<DatabaseWithRelations>;
-        newState?: any;
-    };
-};
-
-/**
- * @param tableWidth - the full width of the table, including ACTIONS column
- * @param columnWidths - an array of {columnId: columnWidth }
- */
-export type TableSizingState = {
-    tableWidth: Number;
-    columnWidths: ColumnSizingState[];
-};
-
-export type TableViewsMeta = Array<
-    Partial<View> & {
-        format: ParsedFormatting;
-    }
->;
-
-export type TableState = {
-    data: FormattedPageWRelations[];
-    columns: ColumnDef<FormattedPageWRelations>[];
-    columnVisibility: VisibilityState;
-    columnOrder: ColumnOrderState;
-    tableSizing: TableSizingState;
-    columnResizeMode: ColumnResizeMode;
-    format: ParsedFormatting;
-    views: TableViewsMeta;
-};
+import { DatabaseAction, ParsedFormatting, TableState } from "src/utils/types";
 
 export const accessorFunction = ({ originalRow, propertyId, index, type, details }) => {
     switch (type) {

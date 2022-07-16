@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import getClient from "@/prisma/getClient";
 import { Format } from "@prisma/client";
 
-const prisma = getClient();
+const { prisma } = getClient();
 
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
     const { formatId } = req.query as { [key: string]: string };
@@ -39,7 +39,7 @@ async function handleGET({ formatId, res }: { formatId: string; res: NextApiResp
         res.status(200).json(data);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error });
+        res.status(500).json({ message: `Internal Server Error`, err: error as string });
     }
 }
 
@@ -64,7 +64,7 @@ async function handlePUT({
         res.status(200).json(format);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error });
+        res.status(500).json({ message: `Internal Server Error`, err: error as string });
     }
 }
 
@@ -80,6 +80,21 @@ async function handleDELETE({ formatId, res }: { formatId: string; res: NextApiR
         });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error });
+        res.status(500).json({ message: `Internal Server Error`, err: error as string });
     }
+}
+
+// for sqlite
+export function parseFormatJSON(format: Format): Format {
+    console.log(`parsing`);
+    format.order = JSON.parse(format?.order as string) ?? undefined;
+    format.details = JSON.parse(format?.details as string) ?? undefined;
+    return format as Format;
+}
+
+export function stringifyFormatJSON(format: Format): Format {
+    console.log(`stringifying`);
+    format.order = JSON.stringify(format?.order) ?? undefined;
+    format.details = JSON.stringify(format?.details) ?? undefined;
+    return format as Format;
 }

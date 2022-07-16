@@ -2,17 +2,17 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import getClient from "@/prisma/getClient";
 import { Prisma as P, Block, Database, Page } from "@prisma/client";
 import { ErrorMsg } from "src/utils/types";
-import { formatChildren, parseBlockJSON, stringifyBlockJSON } from ".";
 
 const { prisma, provider } = getClient();
 
 export type BlockChild = Pick<Database | Page | Block, "id" & "object" & "type">;
 
-export type FormattedBlockWRelations = Omit<BlockWithRelations, "childrenDbs" & "childrenPages" & "childrenBlocks"> & {
+export type FormattedBlockWRelations = {
     children: Array<BlockChild>;
-};
+} & Omit<BlockWithRelations, "childrenDbs" & "childrenPages" & "childrenBlocks">;
 
-export type BlockWithRelations = P.BlockGetPayload<typeof blockIncludeRelations>;
+type BlockWithRelationsPayload = P.BlockGetPayload<typeof blockIncludeRelations>;
+export type BlockWithRelations = Partial<BlockWithRelationsPayload>;
 
 type ResponseData = FormattedBlockWRelations | Block | ErrorMsg;
 
@@ -47,13 +47,13 @@ async function handleGET({ blockId, res }: { blockId: string; res: NextApiRespon
         let data = await getBlockWithRelations(blockId);
 
         if (provider === "sqlite") {
-            data = parseBlockJSON(data);
+            data = parseBlockJSON(data as Block);
         }
 
-        res.status(200).json(formatChildren(data));
+        res.status(200).json(formatChildren(data as Block) as ResponseData);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error });
+        res.status(500).json({ message: `Internal Server Error`, err: error as string });
     }
 }
 
@@ -64,34 +64,34 @@ async function handlePUT({
     res,
 }: {
     blockId: string;
-    blockData: Block;
+    blockData: Block | FormattedBlockWRelations;
     res: NextApiResponse<ResponseData>;
 }) {
     try {
         if (provider === "sqlite") {
-            blockData = stringifyBlockJSON(blockData);
+            blockData = stringifyBlockJSON(blockData as FormattedBlockWRelations);
         }
 
-        const block = await updateBlock(blockId, blockData);
+        const block = await updateBlock(blockId, blockData as P.BlockUpdateInput);
 
-        res.status(200).json(block);
+        res.status(200).json(block as FormattedBlockWRelations);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error });
+        res.status(500).json({ message: `Internal Server Error`, err: error as string });
     }
 }
 
 // DELETE /api/blocks/:id
 async function handleDELETE({ blockId, res }: { blockId: string; res: NextApiResponse<ResponseData> }) {
     try {
-        const deletedBlock = await updateBlock(blockId, { archived: true });
+        await updateBlock(blockId, { archived: true });
 
         res.status(200).json({
-            message: `${deletedBlock.id} archived successfully.`,
+            message: `${blockId} archived successfully.`,
         });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error });
+        res.status(500).json({ message: `Internal Server Error`, err: error as string });
     }
 }
 
@@ -121,22 +121,60 @@ const blockIncludeRelations = P.validator<P.BlockArgs>()({
     },
 });
 
-async function getBlockWithRelations(blockId: string): Promise<BlockWithRelations> {
-    return await prisma.block.findUniqueOrThrow({
-        where: { id: blockId },
-        ...blockIncludeRelations,
-    });
+async function getBlockWithRelations(blockId: string): Promise<BlockWithRelations | null> {
+    try {
+        return await prisma.block.findUniqueOrThrow({
+            where: { id: blockId },
+            ...blockIncludeRelations,
+        });
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
 }
 
 async function updateBlock(blockId: string, blockData: P.BlockUpdateInput) {
-    return await prisma.block.update({
-        where: {
-            id: blockId,
-        },
-        data: {
-            archived: blockData?.archived || undefined,
-            type: blockData?.type || undefined,
-            details: blockData?.details || undefined,
-        },
-    });
+    try {
+        return await prisma.block.update({
+            where: {
+                id: blockId,
+            },
+            data: {
+                archived: blockData?.archived || undefined,
+                type: blockData?.type || undefined,
+                details: blockData?.details || undefined,
+            },
+        });
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+}
+
+export function formatChildren(data: BlockWithRelations): FormattedBlockWRelations {
+    const formattedBlock: FormattedBlockWRelations = { ...data, children: [] };
+    formattedBlock.children = [
+        ...(data?.childrenDbs as Pick<Database, "id" & "object" & "type">[]),
+        ...(data?.childrenPages as Pick<Page, "id" & "object" & "type">[]),
+        ...(data?.childrenBlocks as Pick<Block, "id" & "object" & "type">[]),
+    ];
+
+    delete formattedBlock.childrenBlocks;
+    delete formattedBlock.childrenPages;
+    delete formattedBlock.childrenDbs;
+
+    return formattedBlock;
+}
+
+// for sqlite
+export function parseBlockJSON(block: Block | FormattedBlockWRelations): FormattedBlockWRelations {
+    console.log(`parsing`);
+    block.details = JSON.parse(block?.details as string) ?? undefined;
+    return block as FormattedBlockWRelations;
+}
+
+export function stringifyBlockJSON(block: Block | FormattedBlockWRelations): FormattedBlockWRelations {
+    console.log(`stringifying`);
+    block.details = JSON.stringify(block?.details) ?? undefined;
+    return block as FormattedBlockWRelations;
 }

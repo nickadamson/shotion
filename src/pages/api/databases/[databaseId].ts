@@ -2,7 +2,6 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import getClient from "@/prisma/getClient";
 import { Prisma as P, Database } from "@prisma/client";
 import { ErrorMsg } from "src/utils/types";
-import { parseDbJSON, stringifyDbJSON } from ".";
 
 const { prisma, provider } = getClient();
 
@@ -47,7 +46,7 @@ async function handleGET({ databaseId, res }: { databaseId: string; res: NextApi
         res.status(200).json(data);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error });
+        res.status(500).json({ message: `Internal Server Error`, err: error as string });
     }
 }
 
@@ -63,31 +62,31 @@ async function handlePUT({
 }) {
     try {
         if (provider === "sqlite") {
-            databaseData = stringifyDbJSON(databaseData);
+            databaseData = stringifyDbJSON(databaseData as DatabaseWithRelations);
         }
 
         const data = await updateDatabase(databaseId, databaseData);
 
-        res.status(200).json(data);
+        res.status(200).json(data as ResponseData);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error });
+        res.status(500).json({ message: `Internal Server Error`, err: error as string });
     }
 }
 
 // DELETE /api/databases/:id
 async function handleDELETE({ databaseId, res }: { databaseId: string; res: NextApiResponse<ResponseData> }) {
     try {
-        const deletedDatabase = await updateDatabase(databaseId, {
+        await updateDatabase(databaseId, {
             archived: true,
         });
 
         res.status(200).json({
-            message: `${deletedDatabase.id} archived successfully.`,
+            message: `${databaseId} archived successfully.`,
         });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error });
+        res.status(500).json({ message: `Internal Server Error`, err: error as string });
     }
 }
 
@@ -112,40 +111,119 @@ async function getDatabaseWithRelations(databaseId: string): Promise<DatabaseWit
     });
 }
 
-async function updateDatabase(databaseId: string, databaseData: P.DatabaseUpdateInput) {
+async function updateDatabase(databaseId: string, databaseData: P.DatabaseUpdateInput): Promise<Database | null> {
     if (provider !== "sqlite") {
-        return await prisma.database.update({
-            where: {
-                id: databaseId,
-            },
-            data: {
-                object: databaseData?.object || undefined,
-                isWorkspace: databaseData?.isWorkspace || undefined,
-                isInline: databaseData?.isInline || undefined,
-                archived: databaseData?.archived || undefined,
-                type: databaseData?.type || undefined,
-                title: databaseData?.title || undefined,
-                description: databaseData?.description || undefined,
-                icon: databaseData?.icon || undefined,
-                cover: databaseData?.cover || undefined,
-            },
-        });
+        try {
+            return await prisma.database.update({
+                where: {
+                    id: databaseId,
+                },
+                data: {
+                    object: databaseData?.object || undefined,
+                    isWorkspace: databaseData?.isWorkspace || undefined,
+                    isInline: databaseData?.isInline || undefined,
+                    archived: databaseData?.archived || undefined,
+                    type: databaseData?.type || undefined,
+                    title: databaseData?.title || undefined,
+                    description: databaseData?.description || undefined,
+                    icon: databaseData?.icon || undefined,
+                    cover: databaseData?.cover || undefined,
+                },
+            });
+        } catch (error) {
+            console.log(error);
+            return null;
+        }
     } else {
-        return await prisma.database.update({
-            where: {
-                id: databaseId,
-            },
-            data: {
-                object: databaseData?.object || undefined,
-                isWorkspace: databaseData?.isWorkspace || undefined,
-                isInline: databaseData?.isInline || undefined,
-                archived: databaseData?.archived || undefined,
-                type: databaseData?.type || undefined,
-                title: databaseData?.title ? JSON.stringify(databaseData?.title) : undefined,
-                description: databaseData?.description ? JSON.stringify(databaseData?.description) : undefined,
-                icon: databaseData?.icon ? JSON.stringify(databaseData?.icon) : undefined,
-                cover: databaseData?.cover ? JSON.stringify(databaseData?.cover) : undefined,
-            },
-        });
+        try {
+            return await prisma.database.update({
+                where: {
+                    id: databaseId,
+                },
+                data: {
+                    object: databaseData?.object || undefined,
+                    isWorkspace: databaseData?.isWorkspace || undefined,
+                    isInline: databaseData?.isInline || undefined,
+                    archived: databaseData?.archived || undefined,
+                    type: databaseData?.type || undefined,
+                    title: databaseData?.title ? JSON.stringify(databaseData?.title) : undefined,
+                    description: databaseData?.description ? JSON.stringify(databaseData?.description) : undefined,
+                    icon: databaseData?.icon ? JSON.stringify(databaseData?.icon) : undefined,
+                    cover: databaseData?.cover ? JSON.stringify(databaseData?.cover) : undefined,
+                },
+            });
+        } catch (error) {
+            console.log(error);
+            return null;
+        }
     }
+}
+
+// for sqlite
+export function parseDbJSON(db: DatabaseWithRelations): DatabaseWithRelations {
+    db.title = JSON.parse(db?.title as string) ?? undefined;
+    db.description = JSON.parse(db?.description as string) ?? undefined;
+    db.icon = JSON.parse(db?.icon as string) ?? undefined;
+    db.cover = JSON.parse(db?.cover as string) ?? undefined;
+
+    db.properties =
+        db?.properties?.map((property) => ({
+            ...property,
+            details: JSON.parse(property?.details as string) ?? undefined,
+        })) ?? undefined;
+
+    db.childrenPages =
+        db?.childrenPages?.map((page) => {
+            page.title = JSON.parse(page?.title as string) ?? undefined;
+            page.icon = JSON.parse(page?.icon as string) ?? undefined;
+            page.cover = JSON.parse(page?.cover as string) ?? undefined;
+            page.propertyValues = JSON.parse(page?.propertyValues as string) ?? undefined;
+            return page;
+        }) ?? undefined;
+
+    db.views =
+        db?.views?.map((view) => {
+            if (view?.format) {
+                const { format } = view;
+                view.format.details = JSON.parse(format?.details as string) ?? undefined;
+                view.format.order = JSON.parse(format?.order as string) ?? undefined;
+            }
+            return view;
+        }) ?? undefined;
+
+    return db;
+}
+
+export function stringifyDbJSON(db: DatabaseWithRelations): DatabaseWithRelations {
+    db.title = JSON.stringify(db?.title as string) ?? undefined;
+    db.description = JSON.stringify(db?.description as string) ?? undefined;
+    db.icon = JSON.stringify(db?.icon as string) ?? undefined;
+    db.cover = JSON.stringify(db?.cover as string) ?? undefined;
+
+    db.properties =
+        db?.properties?.map((property) => ({
+            ...property,
+            details: JSON.stringify(property?.details as string) ?? undefined,
+        })) ?? undefined;
+
+    db.childrenPages =
+        db?.childrenPages?.map((page) => {
+            page.title = JSON.stringify(page?.title as string) ?? undefined;
+            page.icon = JSON.stringify(page?.icon as string) ?? undefined;
+            page.cover = JSON.stringify(page?.cover as string) ?? undefined;
+            page.propertyValues = JSON.stringify(page?.propertyValues as string) ?? undefined;
+            return page;
+        }) ?? undefined;
+
+    db.views =
+        db?.views?.map((view) => {
+            if (view?.format) {
+                const { format } = view;
+                format.details = JSON.stringify(format?.details as string) ?? undefined;
+                format.order = JSON.stringify(format?.order as string) ?? undefined;
+            }
+            return view;
+        }) ?? undefined;
+
+    return db;
 }

@@ -10,11 +10,16 @@
         "plugin:jsx-a11y/recommended",
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended",
-        "plugin:@typescript-eslint/recommended-requiring-type-checking",
         "next",
-        "prettier",
-        "next/core-web-vitals"
+        "prettier"
     ],
     "rules": {
-    }
+        "no-console": "warn",
+        "@typescript-eslint/no-use-before-define": "warn",
+        "no-return-await": "warn",
+        "@typescript-eslint/return-await": "warn",
+        "no-param-reassign": "warn",
+        "react/require-default-props": "warn"
+    },
+    "ignorePatterns": ["/public/**/*.*"]
 }

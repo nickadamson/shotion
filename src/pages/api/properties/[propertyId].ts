@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import getClient from "@/prisma/getClient";
 import { Property } from "@prisma/client";
 
-const prisma = getClient();
+const { prisma } = getClient();
 
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
     const { propertyId } = req.query as { [key: string]: string };
@@ -39,7 +39,7 @@ async function handleGET({ propertyId, res }: { propertyId: string; res: NextApi
         res.status(200).json(data);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error });
+        res.status(500).json({ message: `Internal Server Error`, err: error as string });
     }
 }
 
@@ -64,7 +64,7 @@ async function handlePUT({
         res.status(200).json(property);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error });
+        res.status(500).json({ message: `Internal Server Error`, err: error as string });
     }
 }
 
@@ -80,6 +80,6 @@ async function handleDELETE({ propertyId, res }: { propertyId: string; res: Next
         });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error });
+        res.status(500).json({ message: `Internal Server Error`, err: error as string });
     }
 }

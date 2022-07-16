@@ -46,6 +46,7 @@
         "@types/node": "^18.0.4",
         "@types/react": "18.0.15",
         "@types/react-dom": "18.0.6",
+        "@typescript-eslint/eslint-plugin": "^5.30.6",
         "autoprefixer": "^10.4.7",
         "eslint": "8.19.0",
         "eslint-config-airbnb": "^19.0.4",
@@ -56,6 +57,7 @@
         "husky": "^8.0.1",
         "lint-staged": "^13.0.3",
         "postcss": "^8.4.14",
+        "prettier": "^2.7.1",
         "prisma": "^4.0.0",
         "prisma-json-schema-generator": "^3.0.0",
         "react-draggable": "^4.4.5",
@@ -66,7 +68,8 @@
     },
     "lint-staged": {
         "*.{ts,tsx,js,jsx,css,md}": [
-            "prettier --write"
+            "eslint --fix",
+            "prettier --write --ignore-unknown"
         ]
     }
 }

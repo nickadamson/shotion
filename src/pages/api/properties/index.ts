@@ -3,7 +3,7 @@ import getClient from "@/prisma/getClient";
 import { Property } from "@prisma/client";
 import { ErrorMsg } from "src/utils/types";
 
-const prisma = getClient();
+const { prisma } = getClient();
 
 export default async function handle(req: NextApiRequest, res: NextApiResponse<Property | Property[] | Err>) {
     const propertyData: Property = req?.body ? JSON.parse(req.body) : null;
@@ -34,7 +34,7 @@ async function handlePOST({ propertyData, res }: { propertyData: Property; res: 
         res.status(200).json(property);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error });
+        res.status(500).json({ message: `Internal Server Error`, err: error as string });
     }
 }
 // GET /api/properties
@@ -45,6 +45,6 @@ async function handleGET({ res }: { res: NextApiResponse<Property[] | Err> }) {
         res.status(200).json(allProperties);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error });
+        res.status(500).json({ message: `Internal Server Error`, err: error as string });
     }
 }

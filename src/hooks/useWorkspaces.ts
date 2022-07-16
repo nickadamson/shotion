@@ -7,8 +7,8 @@ const useWorkspaces = () => {
     const url = `/api/workspaces`;
     const { data, error } = useSWR<(DatabaseSelect | PageSelect)[]>(url, fetcher);
 
-    const createNewWorkspace = async (newWorkspace: Partial<Database | Page>): Promise<Database | Page> => {
-        let response;
+    const createNewWorkspace = async (newWorkspace: Partial<Database | Page>): Promise<Database | Page | undefined> => {
+        let response: Response | undefined;
         try {
             switch (newWorkspace.object) {
                 case "database":
@@ -26,10 +26,10 @@ const useWorkspaces = () => {
 
                     break;
             }
-            return response.json();
+
+            return (response as Response).json();
         } catch (error) {
             console.log(error);
-            return error;
         }
     };
 
