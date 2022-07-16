@@ -1,18 +1,18 @@
 import { FC, ReactNode } from "react";
 
 type SortProps = {
-  children?: ReactNode;
+    children?: ReactNode;
 };
 
 const SortOptions: FC<SortProps> = (props) => {
-  const { children } = props;
+    const { children } = props;
 
-  return (
-    <>
-      <div>Sort</div>
-      {children}
-    </>
-  );
+    return (
+        <>
+            <div>Sort</div>
+            {children}
+        </>
+    );
 };
 
 export default SortOptions;

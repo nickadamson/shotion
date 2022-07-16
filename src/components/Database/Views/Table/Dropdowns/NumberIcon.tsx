@@ -1,7 +1,7 @@
 type Props = {};
 
 const NumberIcon = (props: Props) => {
-  return <i />;
+    return <i />;
 };
 
 export default NumberIcon;
