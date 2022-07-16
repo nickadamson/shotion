@@ -3,6 +3,13 @@
     "description": "Versatile Productivity App: Self-Hosted Edition",
     "version": "0.1.0",
     "private": false,
+    "keywords": [],
+    "author": "",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/nickadamson/shotion/issues"
+    },
+    "homepage": "https://github.com/nickadamson/shotion#readme",
     "prisma": {
         "schema": "db/prisma/schema.prisma",
         "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} db/prisma/seed.ts"
@@ -12,20 +19,22 @@
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
-        "pretty": "npx prettier --write ./db",
+        "pretty": "npx prettier --write ./src",
         "seed": "npx prisma db seed",
         "studio": "npx prisma studio",
         "reseed": "npx prisma format && npx prisma generate && npx prisma migrate dev --name new",
         "create-sqlite": "node ./db/util/createSqliteDB.js",
         "create-postgres": "sudo -u postgres createdb shotion -p 5433 -O postgres",
         "psql-restart-cluster": "sudo pg_ctlcluster 12 main restart",
-        "psql-connect": "sudo -u postgres psql shotion"
+        "psql-connect": "sudo -u postgres psql shotion",
+        "prepare": "husky install"
     },
     "dependencies": {
         "@material-ui/core": "^4.12.4",
         "@material-ui/icons": "^4.11.3",
         "@prisma/client": "^4.0.0",
         "@tanstack/react-table": "^8.2.6",
+        "better-sqlite3": "^7.6.1",
         "cuid": "^2.1.8",
         "next": "12.2.2",
         "react": "18.2.0",
@@ -38,9 +47,14 @@
         "@types/react": "18.0.15",
         "@types/react-dom": "18.0.6",
         "autoprefixer": "^10.4.7",
-        "better-sqlite3": "^7.6.1",
         "eslint": "8.19.0",
+        "eslint-config-airbnb": "^19.0.4",
+        "eslint-config-airbnb-typescript": "^17.0.0",
         "eslint-config-next": "12.2.2",
+        "eslint-config-prettier": "^8.5.0",
+        "eslint-plugin-jsx-a11y": "^6.6.0",
+        "husky": "^8.0.1",
+        "lint-staged": "^13.0.3",
         "postcss": "^8.4.14",
         "prisma": "^4.0.0",
         "prisma-json-schema-generator": "^3.0.0",
@@ -50,11 +64,9 @@
         "ts-node": "^10.9.1",
         "typescript": "^4.7.4"
     },
-    "keywords": [],
-    "author": "",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/nickadamson/shotion/issues"
-    },
-    "homepage": "https://github.com/nickadamson/shotion#readme"
+    "lint-staged": {
+        "*.{ts,tsx,js,jsx,css,md}": [
+            "prettier --write"
+        ]
+    }
 }

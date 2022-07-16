@@ -139,3 +139,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 
+# vscode
+.vscode/launch.json
+
+# sqlite
+*.sqlite3
