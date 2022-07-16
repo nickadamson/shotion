@@ -2,8 +2,17 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import getClient from "@/prisma/getClient";
 import { Prisma as P, Page, Database, Block } from "@prisma/client";
 import { ErrorMsg } from "src/utils/types";
+import { formatChildren, parsePageJSON } from ".";
 
-const prisma = getClient();
+const { prisma, provider } = getClient();
+
+export type PageChild = Pick<Database | Page | Block, "id" & "object" & "type">;
+
+export type FormattedPageWRelations = Omit<PageWithRelations, "childrenDbs" & "childrenPages" & "childrenBlocks"> & {
+    children: Array<PageChild>;
+};
+
+export type PageWithRelations = P.PageGetPayload<typeof pageIncludeRelations>;
 
 type ResponseData = FormattedPageWRelations | Page | ErrorMsg;
 
@@ -35,7 +44,11 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse<R
 // GET /api/pages/:id
 async function handleGET({ pageId, res }: { pageId: string; res: NextApiResponse<ResponseData> }) {
     try {
-        const data = await getPageWithRelations(pageId);
+        let data = await getPageWithRelations(pageId);
+
+        if (provider === "sqlite") {
+            data = parsePageJSON(data);
+        }
 
         res.status(200).json(formatChildren(data));
     } catch (error) {
@@ -55,6 +68,9 @@ async function handlePUT({
     res: NextApiResponse<ResponseData>;
 }) {
     try {
+        if (provider === "sqlite") {
+            pageData = parsePageJSON(pageData);
+        }
         const data = await updatePage(pageId, pageData);
 
         res.status(200).json(data);
@@ -77,8 +93,6 @@ async function handleDELETE({ pageId, res }: { pageId: string; res: NextApiRespo
         res.status(500).json({ message: `Internal Server Error`, err: error });
     }
 }
-
-type PageWithRelations = P.PageGetPayload<typeof pageIncludeRelations>;
 
 const pageIncludeRelations = P.validator<P.PageArgs>()({
     include: {
@@ -112,35 +126,6 @@ async function getPageWithRelations(pageId: string): Promise<PageWithRelations> 
         where: { id: pageId },
         ...pageIncludeRelations,
     });
-}
-
-type Child = Pick<Database | Page | Block, "id" & "object" & "type">;
-
-export type FormattedPageWRelations = Omit<PageWithRelations, "childrenDbs" & "childrenPages" & "childrenBlocks"> & {
-    children: Array<Child>;
-};
-
-function formatChildren(data: PageWithRelations): FormattedPageWRelations {
-    let formattedPage: FormattedPageWRelations = { ...data, children: [] };
-    formattedPage["children"] = [
-        ...(data?.childrenDbs as Pick<Database, "id" & "object" & "type">[]),
-        ...(data?.childrenPages as Pick<Page, "id" & "object" & "type">[]),
-        ...(data?.childrenBlocks as Pick<Block, "id" & "object" & "type">[]),
-    ];
-
-    delete data.childrenBlocks;
-    delete data.childrenPages;
-    delete data.childrenDbs;
-
-    // console.log(typeof data.propertyValues);
-    // console.log(data.propertyValues instanceof String);
-    // console.log(data.propertyValues);
-    if (typeof data.propertyValues === "string") {
-        //     console.log("world");
-        data.propertyValues = JSON.parse(data.propertyValues);
-    }
-
-    return formattedPage;
 }
 
 async function updatePage(pageId: string, pageData: P.PageUpdateInput) {

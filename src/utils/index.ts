@@ -1,4 +1,21 @@
-export const fetcher = (url: string) => fetch(url).then((res) => res.json());
+import { RTO } from "./types";
+
+export const formatRTO = (rto?: RTO): RTO => {
+    return {
+        type: "text",
+        text: { content: rto?.text?.content ?? "", link: rto?.text?.link ?? null },
+        annotations: {
+            bold: rto?.annotations?.bold ?? false,
+            italic: rto?.annotations?.italic ?? false,
+            strikethrough: rto?.annotations?.strikethrough ?? false,
+            underline: rto?.annotations?.underline ?? false,
+            code: rto?.annotations?.code ?? false,
+            color: rto?.annotations?.color ?? "default",
+        },
+        plainText: rto?.plainText ?? "",
+        href: rto?.href ?? null,
+    };
+};
 
 export const getDefaultDetailsForPropertyType = (type): Record<string, any> | void => {
     switch (type) {

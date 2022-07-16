@@ -1,106 +1,165 @@
 import cuid from "cuid";
-import { Format, Page, Property } from "@prisma/client";
-import { TableSizingState, TableViewsMeta } from "@/hooks/useDatabaseReducer";
+import { Database, Property, View, Page, Format, Block, PROPERTYTYPE, Prisma } from "@prisma/client";
 import { VisibilityState, ColumnOrderState } from "@tanstack/react-table";
-import { PropertyType } from "./types";
 
-// export const updateDatabase = async (database) => {
-//     return (
-//         await fetch(`/api/databases/${database.id}`, {
-//             method: "PUT",
-//             body: JSON.stringify({ ...database }),
-//         })
-//     ).json();
-// };
+import { TableSizingState, TableViewsMeta } from "@/hooks/useDatabaseReducer";
+import { getDefaultDetailsForPropertyType, getDefaultValueForPropertyType } from ".";
+import { ParsedFormatting } from "./types";
 
-// export const deleteDatabase = async (database) => {
-//     return (
-//         await fetch(`/api/databases/${database.id}`, {
-//             method: "DELETE",
-//         })
-//     ).json();
-// };
+// swr
+export const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export const updatePage = async (page: Partial<Page>) => {
-    const res = await (
-        await fetch(`/api/pages/${page.id}`, {
-            method: "PUT",
-            body: JSON.stringify({ ...page }),
-        })
-    ).json();
-    console.log(res);
+// helper
+export const putter = (url: string, method: "POST" | "PUT" | "DELETE", body?: Record<any, any>) =>
+    fetch(url, {
+        method: method,
+        body: JSON.stringify({ ...body }),
+    }).then((res) => res.json());
+
+/** DB */
+export const postNewDatabase = async (database: Partial<Database>) => {
+    const res = await putter(`/api/databases`, "POST", database);
+    // console.log(`postNewDatabase Res:\n`,{ res });
     return res.ok ? true : false;
 };
 
-// export const deletePage = async (page) => {
-//     return (
-//         await fetch(`/api/pages/${page.id}`, {
-//             method: "DELETE",
-//         })
-//     ).json();
-// };
-
-// export const updateBlock = async (block) => {
-//     return (
-//         await fetch(`/api/blocks/${block.id}`, {
-//             method: "PUT",
-//             body: JSON.stringify({ ...block }),
-//         })
-//     ).json();
-// };
-
-// export const deleteBlock = async (block) => {
-//     return (
-//         await fetch(`/api/blocks/${block.id}`, {
-//             method: "DELETE",
-//         })
-//     ).json();
-// };
-
-async function createNewProperty(property: Partial<Property>) {
-    const res = await (
-        await fetch(`/api/properties`, {
-            method: "POST",
-            body: JSON.stringify({ ...property }),
-        })
-    ).json();
-    console.log(res);
+export const updateDatabase = async (database: Partial<Database>) => {
+    const res = await putter(`/api/databases/${database.id}`, "PUT", database);
+    // console.log(`updateDatabase Res:\n`,{ res });
     return res.ok ? true : false;
-}
+};
 
+export const deleteDatabase = async (database: Partial<Database>) => {
+    const res = await putter(`/api/databases/${database.id}`, "DELETE");
+    // console.log(`deleteDatabase Res:\n`,{ res });
+    return res.ok ? true : false;
+};
+
+/** Page */
+export const postNewPage = async (page: Partial<Page>) => {
+    const res = await putter(`/api/pages`, "POST", page);
+    // console.log(`postNewPage Res:\n`,{ res });
+    return res.ok ? true : false;
+};
+
+export const updatePage = async (page: Partial<Page>) => {
+    const res = await putter(`/api/pages/${page.id}`, "PUT", page);
+    // console.log(`updatePage Res:\n`,{ res });
+    return res.ok ? true : false;
+};
+
+export const deletePage = async (page: Partial<Page>) => {
+    const res = await putter(`/api/pages/${page.id}`, "DELETE");
+    // console.log(`deletePage Res:\n`,{ res });
+    return res.ok ? true : false;
+};
+
+/** Block */
+export const postNewBlock = async (block: Partial<Block>) => {
+    const res = await putter(`/api/blocks`, "POST", block);
+    // console.log(`postNewBlock Res:\n`,{ res });
+    return res.ok ? true : false;
+};
+
+export const updateBlock = async (block: Partial<Block>) => {
+    const res = await putter(`/api/blocks/${block.id}`, "PUT", block);
+    // console.log(`updateBlock Res:\n`,{ res });
+    return res.ok ? true : false;
+};
+
+export const deleteBlock = async (block: Partial<Block>) => {
+    const res = await putter(`/api/blocks/${block.id}`, "DELETE");
+    // console.log(`deleteBlock Res:\n`,{ res });
+    return res.ok ? true : false;
+};
+
+/** Property */
+export const postNewProperty = async (property: Partial<Property>) => {
+    const res = await putter(`/api/properties`, "POST", property);
+    // console.log(`postNewProperty Res:\n`,{ res });
+    return res.ok ? true : false;
+};
+
+export const updateProperty = async (property: Partial<Property>) => {
+    const res = await putter(`/api/properties/${property.id}`, "PUT", property);
+    // console.log(`updateProperty Res:\n`,{ res });
+    return res.ok ? true : false;
+};
+
+export const deleteProperty = async (property: Partial<Property>) => {
+    const res = await putter(`/api/properties/${property.id}`, "DELETE");
+    // console.log(`deleteProperty Res:\n`,{ res });
+    return res.ok ? true : false;
+};
+
+/** View */
+export const postNewView = async (view: Partial<View>) => {
+    const res = await putter(`/api/views`, "POST", view);
+    // console.log(`postNewView Res:\n`,{ res });
+    return res.ok ? true : false;
+};
+
+export const updateView = async (view: Partial<View>) => {
+    const res = await putter(`/api/views/${view.id}`, "PUT", view);
+    // console.log(`updateView Res:\n`,{ res });
+    return res.ok ? true : false;
+};
+
+export const deleteView = async (view: Partial<View>) => {
+    const res = await putter(`/api/views/${view.id}`, "DELETE");
+    // console.log(`deleteView Res:\n`,{ res });
+    return res.ok ? true : false;
+};
+
+/** Format */
+export const postNewFormat = async (format: Partial<Format>) => {
+    const res = await putter(`/api/formats`, "POST", format);
+    // console.log(`postNewFormat Res:\n`,{ res });
+    return res.ok ? true : false;
+};
+
+export const updateFormat = async (format: Partial<Format>) => {
+    const res = await putter(`/api/formats/${format.id}`, "PUT", format);
+    // console.log(`updateFormat Res:\n`,{ res });
+    return res.ok ? true : false;
+};
+
+export const deleteFormat = async (format: Partial<Format>) => {
+    const res = await putter(`/api/formats/${format.id}`, "DELETE");
+    // console.log(`deleteFormat Res:\n`,{ res });
+    return res.ok ? true : false;
+};
+
+// handlers
 export const handleNewProperty = async ({
     databaseId,
-    childrenPages,
     views,
+    childrenPages,
 }: {
     databaseId: string;
-    childrenPages?: Pick<Page, "id" | "propertyValues">[];
     views: TableViewsMeta;
+    childrenPages?: Pick<Page, "id" | "propertyValues">[];
 }) => {
-    let createdProperty, updatedFormats; // for logging errors
+    let createdProperty,
+        updatedFormats = false; // for logging errors
+
+    // 1 create property
     try {
-        // create property
         let property = {
             id: cuid.slug(),
             parentDbId: databaseId,
-            type: "text",
+            type: "text" as PROPERTYTYPE,
             name: "New Property",
         };
-        console.log({ databaseId, childrenPages, views, property });
-        createdProperty = await createNewProperty(property);
-        // fetch(`/api/properties`, {
-        //     method: "POST",
-        //     body: JSON.stringify({ ...property }),
-        // });
+        createdProperty = await postNewProperty(property);
 
-        // push property into all formats associated with the db
+        // 2 push property into all formats associated with the db
         let formatPromises = views.map(async (view) => {
-            // process views and their formatting
             let width = 32;
-            let formatId = view.format.id;
             let { details } = view.format;
+
             details.order.push(property.id);
-            details.columnVisibility[`${formatId}`] = true;
+            details.columnVisibility[`${view.format.id}`] = true;
             details.tableSizing = {
                 tableWidth: Number(details?.tableSizing?.tableWidth ?? 0) + width,
                 columnWidths: {
@@ -108,43 +167,28 @@ export const handleNewProperty = async ({
                     [`${property.id}`]: width,
                 },
             };
-            return await updateFormat({
-                id: formatId,
-                details,
-            });
 
-            // fetch(`/api/formats/${formatId}`, {
-            //     method: "PUT",
-            //     body: JSON.stringify({
-            //         details: {
-            //             columnOrder: details.order,
-            //             columnVisibility: details.columnVisibility,
-            //             tableSizing: details.tableSizing,
-            //         },
-            //     }),
-            // });
+            return await updateFormat({
+                id: view.format.id,
+                details: { ...details } as unknown as Prisma.JsonValue,
+            });
         });
 
         await Promise.all(formatPromises);
         updatedFormats = true;
-
         // success
         if (!childrenPages) return true;
 
-        // push property into all page.propertyValues associated with the db
+        // 3 if children, push property into all page.propertyValues associated with the db
         let pagePromises = childrenPages.map(async (page) => {
-            let { id: pageId, propertyValues } = page;
+            let { propertyValues } = page;
 
-            propertyValues[`${property.id}`] = { plainText: "" };
+            propertyValues[`${property.id}`] = getDefaultValueForPropertyType(property.type);
 
             return await updatePage({
-                id: pageId,
+                id: page.id,
                 propertyValues,
             });
-            // fetch(`/api/pages/${pageId}`, {
-            //     method: "PUT",
-            //     body: JSON.stringify({ propertyValues: propertyValues }),
-            // });
         });
 
         // success
@@ -167,12 +211,12 @@ export const handleChangePropertyType = async ({
     childrenPages,
 }: {
     property: Partial<Property>;
-    newType: PropertyType;
+    newType: PROPERTYTYPE;
     childrenPages?: Pick<Page, "id" | "propertyValues">[];
 }) => {
     let updatedPropSucess = false; // for logging errors
     try {
-        // update property
+        // 1 update property
         let updatedProperty = {
             type: newType,
         };
@@ -189,7 +233,7 @@ export const handleChangePropertyType = async ({
         // success
         if (!childrenPages) return true;
 
-        // push property into all page.propertyValues associated with the db
+        // 2 push property into all page.propertyValues associated with the db
         let pagePromises = childrenPages.map(async (page) => {
             let { id: pageId, propertyValues } = page;
 
@@ -226,37 +270,24 @@ export const handleChangePropertyDetails = async ({
     details: Record<string, any>;
     views?: TableViewsMeta;
 }) => {
-    let updatedPropSucess = false; // for logging errors
+    let updatedPropSuccess = false; // for logging errors
+
+    // 1 update property
     try {
-        // update property
         let updatedProperty = {
             details: details,
         };
 
-        await fetch(`/api/properties/${property.id}`, {
-            method: "PUT",
-            body: JSON.stringify({ ...updatedProperty }),
-        });
-        updatedPropSucess = true; // for logging errors
+        updatedPropSuccess = await updateProperty(property); // for logging errors
 
-        // success
-        // push property into all formats associated with the db
+        // 2 push property into all formats associated with the db
         let formatPromises = views.map(async (view) => {
-            // process views and their formatting
             let formatId = view.format.id;
             let { details } = view.format;
+            // todo
             // details.sorts
             // details.filters
-            // todo
-            // return await fetch(`/api/formats/${formatId}`, {
-            //     method: "PUT",
-            //     body: JSON.stringify({
-            //         details: {
-            //             sorts: details.sorts,
-            //             filters: details.filters,
-            //         },
-            //     }),
-            // });
+            // return await updateFormat({id: view.format.id, details: {...details}})
         });
 
         // success
@@ -265,7 +296,7 @@ export const handleChangePropertyDetails = async ({
     } catch (error) {
         console.log(
             `An error occurred while trying to change Property:${property.id}'s details.
-      Updated Property? - ${updatedPropSucess}
+      Updated Property? - ${updatedPropSuccess}
       Formats to update? - ${!views ? "none" : `${views?.length}`}\nERROR:\n`,
             error
         );
@@ -274,79 +305,32 @@ export const handleChangePropertyDetails = async ({
 };
 
 export const handleChangeFormatTableState = async ({
-    order,
-    columnVisibility,
-    tableSizing,
+    newOrder,
+    newColumnVisibility,
+    newTableSizing,
     format,
 }: {
-    columnVisibility: VisibilityState;
-    order: ColumnOrderState;
-    tableSizing: TableSizingState;
+    newColumnVisibility: VisibilityState;
+    newOrder: ColumnOrderState;
+    newTableSizing: TableSizingState;
     format: Partial<ParsedFormatting>;
 }) => {
-    let formatId = format.id;
     try {
-        // update property
         let { details } = format;
-        details.order = order;
-        details.columnVisibility = columnVisibility;
-        details.tableSizing = tableSizing;
-        await fetch(`/api/formats/${formatId}`, {
-            method: "PUT",
-            body: JSON.stringify({
-                details: {
-                    columnOrder: details.order,
-                    columnVisibility: details.columnVisibility,
-                    tableSizing: details.tableSizing,
-                },
-            }),
+        details.order = newOrder;
+        details.columnVisibility = newColumnVisibility;
+        details.tableSizing = newTableSizing;
+        const success = await updateFormat({
+            id: format.id,
+            details: {
+                columnOrder: details.order,
+                columnVisibility: details.columnVisibility,
+                tableSizing: details.tableSizing,
+            } as unknown as Prisma.JsonValue,
         });
-        return true;
+        return success ? true : false;
     } catch (error) {
-        console.log(`An error occurred while trying to update Format:${formatId}.`, error);
+        console.log(`An error occurred while trying to update Format:${format.id}.`, error);
         return false;
     }
 };
-
-// export const handleDeleteProperty = async (property) => {
-//     try {
-//     } catch (error) {}
-// };
-
-// export const updateView = async (view) => {
-//     return (
-//         await fetch(`/api/views/${view.id}`, {
-//             method: "PUT",
-//             body: JSON.stringify({ ...view }),
-//         })
-//     ).json();
-// };
-
-// export const deleteView = async (view) => {
-//     return (
-//         await fetch(`/api/views/${view.id}`, {
-//             method: "DELETE",
-//         })
-//     ).json();
-// return res.ok ?  true : false
-// };
-
-export const updateFormat = async (format) => {
-    const res = await (
-        await fetch(`/api/formats/${format.id}`, {
-            method: "PUT",
-            body: JSON.stringify({ ...format }),
-        })
-    ).json();
-    console.log(res);
-    return res.ok ? true : false;
-};
-
-// export const deleteFormat = async (format) => {
-//     return (
-//         await fetch(`/api/formats/${format.id}`, {
-//             method: "DELETE",
-//         })
-//     ).json();
-// return res.ok ?  true : false
-// };

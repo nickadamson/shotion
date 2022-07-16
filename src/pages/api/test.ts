@@ -7,11 +7,10 @@ type Data = {
     provider: string;
 };
 
-const prisma = getClient();
+const { provider } = getClient();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data | ErrorMsg>) {
     try {
-        const provider = (prisma as any)?._activeProvider;
         console.log(`Prisma successfully connected to ${provider} database.`);
         res.status(200).json({ provider: provider });
     } catch (error) {

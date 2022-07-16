@@ -2,16 +2,11 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import getClient from "@/prisma/getClient";
 import { Prisma as P, Database } from "@prisma/client";
 import { ErrorMsg } from "src/utils/types";
+import { parseDbJSON, stringifyDbJSON } from ".";
 
-const prisma = getClient();
-const provider = (prisma as any)?._activeProvider;
-// ^^ for (const [key, value] of Object.entries(prisma)) {
-//     console.log(key);
-//     if (key == "_activeProvider") {
-//         console.log(value);
-//     }
-// }
-// console.log(prisma?._activeProvider);
+const { prisma, provider } = getClient();
+
+export type DatabaseWithRelations = P.DatabaseGetPayload<typeof dbIncludeRelations>;
 
 type ResponseData = DatabaseWithRelations | Database | ErrorMsg;
 
@@ -43,21 +38,10 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse<R
 // GET /api/databases/:id
 async function handleGET({ databaseId, res }: { databaseId: string; res: NextApiResponse<ResponseData> }) {
     try {
-        const data = await getDatabaseWithRelations(databaseId);
+        let data = await getDatabaseWithRelations(databaseId);
 
         if (provider === "sqlite") {
-            data.childrenPages.map((page) => {
-                page.title = JSON.parse(page.title);
-                page.icon = JSON.parse(page.icon);
-                page.cover = JSON.parse(page.cover);
-                page.propertyValues = JSON.parse(page.propertyValues);
-            });
-
-            data.views.map((view) => {
-                let { format } = view;
-                format.details = JSON.parse(format.details);
-                format.order = JSON.parse(format.order);
-            });
+            data = parseDbJSON(data);
         }
 
         res.status(200).json(data);
@@ -78,6 +62,10 @@ async function handlePUT({
     res: NextApiResponse<ResponseData>;
 }) {
     try {
+        if (provider === "sqlite") {
+            databaseData = stringifyDbJSON(databaseData);
+        }
+
         const data = await updateDatabase(databaseId, databaseData);
 
         res.status(200).json(data);
@@ -102,8 +90,6 @@ async function handleDELETE({ databaseId, res }: { databaseId: string; res: Next
         res.status(500).json({ message: `Internal Server Error`, err: error });
     }
 }
-
-export type DatabaseWithRelations = P.DatabaseGetPayload<typeof dbIncludeRelations>;
 
 const dbIncludeRelations = P.validator<P.DatabaseArgs>()({
     include: {

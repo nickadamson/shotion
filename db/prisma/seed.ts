@@ -7,39 +7,27 @@ async function createUsers() {
         { id: "2", username: "User2", isAdmin: false },
     ];
 
-    let promises = [];
-    for (const user of users) {
-        promises.push(
-            await prisma.user.upsert({
-                where: { username: user.username },
-                update: { ...user },
-                create: { ...user },
-            })
-        );
-    }
+    const promises = users.map((user) => {
+        return prisma.user.upsert({
+            where: { username: user.username },
+            update: { ...user },
+            create: { ...user },
+        });
+    });
 
-    // const promises = users.map((user) => {
-    //   return prisma.user.upsert({
-    //     where: { username: user.username },
-    //     update: { ...user },
-    //     create: { ...user },
-    //   });
-    // });
-
-    // return await Promise.all(promises);
-    return promises;
+    return await Promise.all(promises);
 }
 
 const toDoWorkspaceFormat = {
     id: "toDoWorkspaceFormat",
-    order: JSON.stringify([
+    order: [
         "toDoWorkspaceH1",
         "toDoWorkspaceText1",
         "toDoWorkspaceText2",
         "todoWorkspaceFirstToggle",
         "divider",
         "columnListAkaRow",
-    ]),
+    ],
 };
 
 async function createToDoWorkspacePage() {
@@ -51,7 +39,7 @@ async function createToDoWorkspacePage() {
         type: "page",
         icon: "",
         cover: "",
-        title: JSON.stringify({
+        title: {
             type: "text",
             text: { content: "Simple Workspace Page", link: null },
             annotations: {
@@ -64,7 +52,7 @@ async function createToDoWorkspacePage() {
             },
             plainText: "Simple Workspace Page",
             href: null,
-        }),
+        },
         // collectionView: { upsert: { create: {}, where: {} } },
         format: {
             create: {
@@ -180,7 +168,7 @@ const toDoWorkspaceH1 = {
     id: "toDoWorkspaceH1",
     object: "block",
     type: "heading1",
-    details: JSON.stringify({
+    details: {
         richText: [
             {
                 type: "text",
@@ -198,7 +186,7 @@ const toDoWorkspaceH1 = {
             },
         ],
         color: "default",
-    }),
+    },
     // parentPageId: "toDoWorkspacePage",
 };
 
@@ -206,7 +194,7 @@ const toDoWorkspaceText1 = {
     id: "toDoWorkspaceText1",
     object: "block",
     type: "text",
-    details: JSON.stringify({
+    details: {
         richText: [
             {
                 type: "text",
@@ -224,7 +212,7 @@ const toDoWorkspaceText1 = {
             },
         ],
         color: "default",
-    }),
+    },
     // parentPageId: "toDoWorkspacePage",
 };
 
@@ -232,7 +220,7 @@ const toDoWorkspaceText2 = {
     id: "toDoWorkspaceText2",
     object: "block",
     type: "text",
-    details: JSON.stringify({
+    details: {
         richText: [
             {
                 type: "text",
@@ -250,7 +238,7 @@ const toDoWorkspaceText2 = {
             },
         ],
         color: "default",
-    }),
+    },
     // parentPageId: "toDoWorkspacePage",
 };
 
@@ -258,7 +246,7 @@ const todoWorkspaceFirstToggle = {
     id: "toggle",
     object: "block",
     type: "toggle",
-    details: JSON.stringify({
+    details: {
         richText: [
             {
                 type: "text",
@@ -276,7 +264,7 @@ const todoWorkspaceFirstToggle = {
             },
         ],
         color: "default",
-    }),
+    },
     // parentPageId: "toDoWorkspacePage",
 };
 
@@ -284,9 +272,10 @@ const inlineDBDatabase = {
     id: "inlineDBdatabase",
     object: "database",
     isWorkspace: false,
+
     type: "childDatabase",
     isInline: true,
-    title: JSON.stringify({
+    title: {
         type: "text",
         text: { content: "Inline Database", link: null },
         annotations: {
@@ -299,7 +288,12 @@ const inlineDBDatabase = {
         },
         plainText: "Inline Database",
         href: null,
-    }),
+    },
+    description: {},
+    icon: {},
+    cover: {},
+    // parentPageId: "toDoWorkspacePage",
+    // parentBlockId: "inlineDBBlock",
 };
 
 const inlineDBTableView = {
@@ -313,7 +307,7 @@ const inlineDBTableView = {
 
 const inlineDBTableFormat = {
     id: "inlineDBTableFormat",
-    details: JSON.stringify({
+    details: {
         order: ["inlineDBTitleProperty", "inlineDBSelectProperty"],
         filters: [{}],
         sorts: [
@@ -331,7 +325,7 @@ const inlineDBTableFormat = {
             inlineDBTitleProperty: 50,
             inlineDBSelectProperty: 100,
         },
-    }),
+    },
 };
 
 const inlineDBTitleProperty = {
@@ -346,7 +340,7 @@ const inlineDBTitleProperty = {
 const inlineDBSelectProperty = {
     id: "inlineDBSelectProperty",
     type: "select",
-    details: JSON.stringify({
+    details: {
         options: [
             {
                 id: "1a68efdc-c888-4dc0-bae9-f66fbedcfc9a",
@@ -359,7 +353,7 @@ const inlineDBSelectProperty = {
                 color: "default",
             },
         ],
-    }),
+    },
     name: "tags",
     // parentDbId: "inlineDBdatabase",
     // formatId: "",
@@ -371,7 +365,7 @@ const inlineDBEntry1 = {
     object: "page",
     isWorkspace: false,
     type: "tableRow",
-    title: JSON.stringify({
+    title: {
         type: "text",
         text: { content: "Entry 1", link: null },
         annotations: {
@@ -384,17 +378,17 @@ const inlineDBEntry1 = {
         },
         plainText: "Entry 1",
         href: null,
-    }),
-    propertyValues: JSON.stringify({
+    },
+    propertyValues: {
         inlineDBSelectProperty: { value: "selectOption1" },
-    }),
+    },
 };
 const inlineDBEntry2 = {
     id: "inlineDBEntry2",
     object: "page",
     isWorkspace: false,
     type: "tableRow",
-    title: JSON.stringify({
+    title: {
         type: "text",
         text: { content: "Entry 2", link: null },
         annotations: {
@@ -407,26 +401,26 @@ const inlineDBEntry2 = {
         },
         plainText: "Entry 2",
         href: null,
-    }),
-    propertyValues: JSON.stringify({
+    },
+    propertyValues: {
         inlineDBSelectProperty: { value: null },
-    }),
+    },
 };
 
 const divider = {
     object: "block",
     type: "divider",
     // parentBlockId: "firstColumn",
-    details: JSON.stringify({ orientation: "horizontal" }),
+    details: { orientation: "horizontal" },
 };
 
 const columnListAkaRow = {
     object: "block",
     id: "columnListAkaRow",
     type: "columnList",
-    details: JSON.stringify({
+    details: {
         columns: 2,
-    }),
+    },
     // parentPageId: "toDoWorkspacePage",
 };
 const firstColumn = {
@@ -454,7 +448,7 @@ const secondColumnContentBlock = {
     id: "secondColumnContentBlock",
     // parentDbId: "toDoWorkspacePage",
     type: "text",
-    details: JSON.stringify({
+    details: {
         richText: [
             {
                 type: "text",
@@ -475,5 +469,5 @@ const secondColumnContentBlock = {
             },
         ],
         color: "default",
-    }),
+    },
 };
