@@ -19,34 +19,34 @@ import Person2Icon from "./type-person-2";
 import TimestampIcon from "./type-timestamp";
 
 interface PropertyIconProps {
-  className?: string;
-  type: PropertyType;
+    className?: string;
+    type: PropertyType;
 }
 
 const iconMap = {
-  title: TitleIcon,
-  text: TextIcon,
-  number: NumberIcon,
-  select: SelectIcon,
-  multiSelect: MultiSelectIcon,
-  date: DateIcon,
-  person: PersonIcon,
-  file: FileIcon,
-  checkbox: CheckboxIcon,
-  url: UrlIcon,
-  email: EmailIcon,
-  phoneNumber: PhoneNumberIcon,
-  formula: FormulaIcon,
-  relation: RelationIcon,
-  createdTime: TimestampIcon,
-  lastEditedTime: TimestampIcon,
-  createdBy: Person2Icon,
-  lastEditedBy: Person2Icon,
+    title: TitleIcon,
+    text: TextIcon,
+    number: NumberIcon,
+    select: SelectIcon,
+    multiSelect: MultiSelectIcon,
+    date: DateIcon,
+    person: PersonIcon,
+    file: FileIcon,
+    checkbox: CheckboxIcon,
+    url: UrlIcon,
+    email: EmailIcon,
+    phoneNumber: PhoneNumberIcon,
+    formula: FormulaIcon,
+    relation: RelationIcon,
+    createdTime: TimestampIcon,
+    lastEditedTime: TimestampIcon,
+    createdBy: Person2Icon,
+    lastEditedBy: Person2Icon,
 };
 
 export const PropertyIcon: FC<PropertyIconProps> = ({ type, ...rest }) => {
-  const icon = iconMap[type] as any;
-  if (!icon) return null;
+    const icon = iconMap[type] as any;
+    if (!icon) return null;
 
-  return icon(rest);
+    return icon(rest);
 };
