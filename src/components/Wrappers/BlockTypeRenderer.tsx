@@ -1,23 +1,25 @@
+import { ChangeEvent, Dispatch, FC, ReactNode, SetStateAction } from "react";
+
+import { ParsedBlock } from "src/pages/api/blocks/[blockId]";
+import { ParsedDatabase } from "src/pages/api/databases/[databaseId]";
+import { ParsedPage } from "src/pages/api/pages/[pageId]";
+
+import Heading from "../Blocks/Heading";
 import PageTitle from "../Blocks/PageTitle";
 import TextArea from "../Blocks/TextArea";
-import { useWorkspaceContext } from "./Context";
-import { ChangeEvent, Dispatch, FC, ReactNode, SetStateAction } from "react";
-import Heading from "../Blocks/Heading";
 import DatabaseViewer from "../Database";
-import { DatabaseWithRelations } from "src/pages/api/databases/[databaseId]";
-import { FormattedPageWRelations } from "src/pages/api/pages/[pageId]";
-import { FormattedBlockWRelations } from "src/pages/api/blocks/[blockId]";
-import AddElementDropdown from "../Dropdowns/AddElementDropdown";
+
+import { useWorkspaceContext } from "./Context";
 
 interface BlockTypeRendererProps {
-    block: DatabaseWithRelations | FormattedPageWRelations | FormattedBlockWRelations;
+    block: ParsedDatabase | ParsedPage | ParsedBlock;
     level: number;
     temporaryValue?: any;
     setTemporaryValue?: Dispatch<SetStateAction<any>>;
     updateTitle: () => Promise<void>;
     updateText: () => Promise<void>;
     handleChange: (event: ChangeEvent<HTMLInputElement>) => void;
-    updateMethod: (updated: any) => Promise<Boolean>;
+    updateMethod: (updated: any) => Promise<boolean>;
     children?: ReactNode;
 }
 
@@ -52,9 +54,8 @@ export const BlockTypeRenderer: FC<BlockTypeRendererProps> = (props) => {
                             )}
                         </main>
                     );
-                } else {
-                    return <main>{block.type !== "collectionViewPage" && children}</main>;
                 }
+                return <main>{block.type !== "collectionViewPage" && children}</main>;
             }
 
         case "heading1":
@@ -108,48 +109,39 @@ export const BlockTypeRenderer: FC<BlockTypeRendererProps> = (props) => {
 
         case "childDatabase":
             if (block?.object === "block") {
-                return (
-                    <>
-                        <>{children}</>
-                    </>
-                );
+                return <>{children}</>;
             }
             if (block?.object === "database") {
                 // if (block?.defaultView?.type === "table") {
                 // database renderer/wrapper here
                 return (
-                    <>
-                        <DatabaseViewer
-                            database={block as DatabaseWithRelations}
-                            temporaryTitleValue={temporaryValue}
-                            handleTitleChange={handleChange}
-                            updateTitle={updateTitle}
-                        />
-                    </>
+                    <DatabaseViewer
+                        database={block as ParsedDatabase}
+                        temporaryTitleValue={temporaryValue}
+                        handleTitleChange={handleChange}
+                        updateTitle={updateTitle}
+                    />
                 );
-            } else {
             }
 
         case "toggle":
             return (
-                <>
-                    <details>
-                        <summary>
-                            {/* <TextArea
+                <details>
+                    <summary>
+                        {/* <TextArea
                 handleChange={handleChange}
                 temporaryValue={temporaryValue}
                 updateText={updateText}
               /> */}
-                        </summary>
+                    </summary>
 
-                        {children}
-                    </details>
-                </>
+                    {children}
+                </details>
             );
 
         default:
             if (process.env.NODEENV !== "production") {
-                console.log("Unsupported type " + (block as any).type, JSON.stringify(block, null, 2));
+                console.log(`Unsupported type ${(block as any).type}`, JSON.stringify(block, null, 2));
             }
 
             return <div />;

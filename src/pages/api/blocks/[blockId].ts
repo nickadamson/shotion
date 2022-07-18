@@ -1,20 +1,21 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import getClient from "@/prisma/getClient";
 import { Prisma as P, Block, Database, Page } from "@prisma/client";
-import { ErrorMsg } from "src/utils/types";
+import type { NextApiRequest, NextApiResponse } from "next";
+
+import getClient from "@/prisma/getClient";
+import { ErrorMsg } from "src/pages/api/workspaces";
 
 const { prisma, provider } = getClient();
 
-export type BlockChild = Pick<Database | Page | Block, "id" & "object" & "type">;
+type BlockChild = Pick<Database | Page | Block, "id" & "object" & "type">;
 
-export type FormattedBlockWRelations = {
-    children: Array<BlockChild>;
-} & Omit<BlockWithRelations, "childrenDbs" & "childrenPages" & "childrenBlocks">;
+export interface ParsedBlock extends Omit<BlockWithRelations, "childrenDbs" & "childrenPages" & "childrenBlocks"> {
+    children: BlockChild[];
+}
 
 type BlockWithRelationsPayload = P.BlockGetPayload<typeof blockIncludeRelations>;
-export type BlockWithRelations = Partial<BlockWithRelationsPayload>;
+type BlockWithRelations = Partial<BlockWithRelationsPayload>;
 
-type ResponseData = FormattedBlockWRelations | Block | ErrorMsg;
+type ResponseData = ParsedBlock | Block | ErrorMsg;
 
 export default async function handle(req: NextApiRequest, res: NextApiResponse<ResponseData>) {
     const { blockId } = req.query as { [key: string]: string };
@@ -64,17 +65,17 @@ async function handlePUT({
     res,
 }: {
     blockId: string;
-    blockData: Block | FormattedBlockWRelations;
+    blockData: Block | ParsedBlock;
     res: NextApiResponse<ResponseData>;
 }) {
     try {
         if (provider === "sqlite") {
-            blockData = stringifyBlockJSON(blockData as FormattedBlockWRelations);
+            blockData = stringifyBlockJSON(blockData as ParsedBlock);
         }
 
         const block = await updateBlock(blockId, blockData as P.BlockUpdateInput);
 
-        res.status(200).json(block as FormattedBlockWRelations);
+        res.status(200).json(block as ParsedBlock);
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: `Internal Server Error`, err: error as string });
@@ -151,8 +152,8 @@ async function updateBlock(blockId: string, blockData: P.BlockUpdateInput) {
     }
 }
 
-export function formatChildren(data: BlockWithRelations): FormattedBlockWRelations {
-    const formattedBlock: FormattedBlockWRelations = { ...data, children: [] };
+export function formatChildren(data: BlockWithRelations): ParsedBlock {
+    const formattedBlock: ParsedBlock = { ...data, children: [] };
     formattedBlock.children = [
         ...(data?.childrenDbs as Pick<Database, "id" & "object" & "type">[]),
         ...(data?.childrenPages as Pick<Page, "id" & "object" & "type">[]),
@@ -167,14 +168,14 @@ export function formatChildren(data: BlockWithRelations): FormattedBlockWRelatio
 }
 
 // for sqlite
-export function parseBlockJSON(block: Block | FormattedBlockWRelations): FormattedBlockWRelations {
+export function parseBlockJSON(block: Block | ParsedBlock): ParsedBlock {
     console.log(`parsing`);
     block.details = JSON.parse(block?.details as string) ?? undefined;
-    return block as FormattedBlockWRelations;
+    return block as ParsedBlock;
 }
 
-export function stringifyBlockJSON(block: Block | FormattedBlockWRelations): FormattedBlockWRelations {
+export function stringifyBlockJSON(block: Block | ParsedBlock): ParsedBlock {
     console.log(`stringifying`);
     block.details = JSON.stringify(block?.details) ?? undefined;
-    return block as FormattedBlockWRelations;
+    return block as ParsedBlock;
 }

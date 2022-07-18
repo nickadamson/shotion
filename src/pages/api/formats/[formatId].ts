@@ -1,8 +1,49 @@
+import { Format, Prisma as P } from "@prisma/client";
+import {
+    ColumnOrderState,
+    FilterFn,
+    FilterFnOption,
+    FilterMeta,
+    SortDirection,
+    SortingFn,
+    SortingFnOption,
+    SortingState,
+    VisibilityState,
+} from "@tanstack/react-table";
 import type { NextApiRequest, NextApiResponse } from "next";
+
 import getClient from "@/prisma/getClient";
-import { Format } from "@prisma/client";
 
 const { prisma } = getClient();
+
+export interface ParsedFormat {
+    id: string;
+    object: "format";
+    // page
+    order?: ColumnOrderState;
+    // database
+    details?: {
+        columnOrder: ColumnOrderState;
+        columnVisibility: VisibilityState;
+        tableSizing: {
+            tableWidth: number;
+            columnWidths: {
+                [x: string]: number;
+            }[];
+        };
+        filters: Array<{
+            function?: FilterFn<unknown>;
+            option?: FilterFnOption<unknown>;
+            meta?: FilterMeta;
+        }>;
+        sorts: Array<{
+            direction: SortDirection;
+            state: SortingState; // [];
+            function: SortingFn<unknown>;
+            option: SortingFnOption<unknown>;
+        }>;
+    };
+}
 
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
     const { formatId } = req.query as { [key: string]: string };
@@ -39,7 +80,10 @@ async function handleGET({ formatId, res }: { formatId: string; res: NextApiResp
         res.status(200).json(data);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error as string });
+        res.status(500).json({
+            message: `Internal Server Error`,
+            err: error as string,
+        });
     }
 }
 
@@ -64,7 +108,10 @@ async function handlePUT({
         res.status(200).json(format);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error as string });
+        res.status(500).json({
+            message: `Internal Server Error`,
+            err: error as string,
+        });
     }
 }
 
@@ -80,21 +127,31 @@ async function handleDELETE({ formatId, res }: { formatId: string; res: NextApiR
         });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: `Internal Server Error`, err: error as string });
+        res.status(500).json({
+            message: `Internal Server Error`,
+            err: error as string,
+        });
     }
 }
 
 // for sqlite
-export function parseFormatJSON(format: Format): Format {
+export function parseFormatJSON(format: Format): ParsedFormat {
     console.log(`parsing`);
-    format.order = JSON.parse(format?.order as string) ?? undefined;
-    format.details = JSON.parse(format?.details as string) ?? undefined;
-    return format as Format;
+    const parsed = {
+        ...format,
+        order: JSON?.parse((format?.order as string) ?? undefined),
+        details: JSON?.parse((format?.details as string) ?? undefined),
+    };
+
+    return parsed as ParsedFormat;
 }
 
-export function stringifyFormatJSON(format: Format): Format {
+export function stringifyFormatJSON(format: ParsedFormat): Partial<Format> {
     console.log(`stringifying`);
-    format.order = JSON.stringify(format?.order) ?? undefined;
-    format.details = JSON.stringify(format?.details) ?? undefined;
-    return format as Format;
+    const stringified = {
+        ...format,
+        order: (JSON?.stringify(format?.order) as P.JsonValue) ?? undefined,
+        details: (JSON?.stringify(format?.details) as P.JsonValue) ?? undefined,
+    };
+    return stringified as Partial<Format>;
 }

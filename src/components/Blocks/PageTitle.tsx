@@ -4,7 +4,7 @@ type TitleProps = {
     temporaryValue?: string;
     handleChange: (event: ChangeEvent<HTMLInputElement>) => void;
     updateTitle: () => Promise<void>;
-    level?: Number;
+    level?: number;
 };
 
 const PageTitle: FC<TitleProps> = (props: TitleProps) => {

@@ -1,8 +1,29 @@
+import { Property, PROPERTYTYPE } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
+
 import getClient from "@/prisma/getClient";
-import { Property } from "@prisma/client";
 
 const { prisma } = getClient();
+
+interface SelectOptions {
+    name: string;
+    color: string;
+}
+
+interface PropertyDetails {
+    options?: SelectOptions[]; // select/multiselect
+    object?: "database" | "page"; // relation
+    id?: string; // relation
+    info?: string; // other
+}
+
+export interface ParsedProperty {
+    id: string;
+    object: "property";
+    type: PROPERTYTYPE;
+    name: string;
+    details: PropertyDetails;
+}
 
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
     const { propertyId } = req.query as { [key: string]: string };

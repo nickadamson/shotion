@@ -2,8 +2,6 @@ import React from "react";
 
 type ViewSelectProps = {};
 
-const ViewSelect = (props: ViewSelectProps) => {
-    return <div>ViewSelect</div>;
-};
+const ViewSelect = (props: ViewSelectProps) => <div>ViewSelect</div>;
 
 export default ViewSelect;

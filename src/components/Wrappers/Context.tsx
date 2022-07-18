@@ -19,7 +19,7 @@ export interface PartialWorkspaceContext {
     children?: ReactNode;
 }
 
-const DefaultLink: FC = (props) => <a target="blank" rel="noOpener noReferrer" {...props} />;
+const DefaultLink: FC = (props) => <a target="blank"  {...props} />;
 const DefaultLinkMemo = memo(DefaultLink);
 const DefaultPageLink: FC = (props) => <a {...props} />;
 const DefaultPageLinkMemo = memo(DefaultPageLink);
@@ -123,6 +123,4 @@ export const WorkspaceContextProvider: FC<PartialWorkspaceContext> = ({
 
 export const WorkspaceContextConsumer = ctx.Consumer;
 
-export const useWorkspaceContext = (): WorkspaceContext => {
-    return useContext(ctx);
-};
+export const useWorkspaceContext = (): WorkspaceContext => useContext(ctx);

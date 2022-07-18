@@ -1,5 +1,7 @@
 import { FC } from "react";
+
 import { WorkspaceContextProvider } from "./Context";
+
 import { HookWrapper } from "./index";
 
 export const WorkspaceRenderer: FC<{
@@ -7,8 +9,7 @@ export const WorkspaceRenderer: FC<{
     workspaceObject?: "database" | "page";
     fullPage?: boolean;
     darkMode?: boolean;
-}> = ({ workspaceId, workspaceObject, fullPage, darkMode, ...rest }) => {
-    return (
+}> = ({ workspaceId, workspaceObject, fullPage, darkMode, ...rest }) => (
         <WorkspaceContextProvider
             fullPage={fullPage}
             workspaceId={workspaceId}
@@ -18,16 +19,11 @@ export const WorkspaceRenderer: FC<{
             <Renderer id={workspaceId} object={workspaceObject} {...rest} />
         </WorkspaceContextProvider>
     );
-};
 
 export const Renderer: FC<{
     id: string;
     object: string;
     level?: number;
-}> = ({ level = 0, id, object }) => {
-    return (
-        <>
-            <HookWrapper id={id} objectType={object} level={level} />
-        </>
+}> = ({ level = 0, id, object }) => (
+        <HookWrapper id={id} objectType={object} level={level} />
     );
-};

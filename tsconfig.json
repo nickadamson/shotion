@@ -6,7 +6,7 @@
         "lib": ["dom", "dom.iterable", "esnext"],
         "allowJs": true,
         "skipLibCheck": true,
-        "strict": true,
+        "strict": false,
         "forceConsistentCasingInFileNames": true,
         "noEmit": true,
         "esModuleInterop": true,
@@ -24,6 +24,6 @@
             "@/prisma/*": ["db/prisma/*"]
         }
     },
-    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-    "exclude": [".github", ".next", ".husky", ".vscode", "node_modules", "public"]
+    "include": ["next-env.d.ts", "src/**/*.ts", "src/**/*.tsx"],
+    "exclude": [".github", ".next", ".husky", ".vscode", "node_modules", "public", "db"]
 }

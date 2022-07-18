@@ -1,8 +1,10 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import getClient from "@/prisma/getClient";
 import { Database } from "@prisma/client";
-import { ErrorMsg } from "src/utils/types";
-import { DatabaseWithRelations } from "./[databaseId]";
+import type { NextApiRequest, NextApiResponse } from "next";
+
+import getClient from "@/prisma/getClient";
+import { ErrorMsg } from "src/pages/api/workspaces";
+
+import { ParsedDatabase } from "./[databaseId]";
 
 const { prisma, provider } = getClient();
 
@@ -30,12 +32,12 @@ async function handlePOST({
     databaseData,
     res,
 }: {
-    databaseData: Database | DatabaseWithRelations;
+    databaseData: Database | ParsedDatabase;
     res: NextApiResponse<Database | ErrorMsg>;
 }) {
     try {
         if (provider === "sqlite") {
-            databaseData = stringifyDbJSON(databaseData as DatabaseWithRelations);
+            databaseData = stringifyDbJSON(databaseData as ParsedDatabase);
         }
 
         const database = await prisma.database.create({
@@ -51,11 +53,11 @@ async function handlePOST({
 // GET /api/databases
 async function handleGET({ res }: { res: NextApiResponse<Database[] | ErrorMsg> }) {
     try {
-        let allDatabases = await prisma.database.findMany();
+        const allDatabases = await prisma.database.findMany();
 
         if (provider === "sqlite") {
             allDatabases.map((db, i) => {
-                allDatabases[i] = parseDbJSON(db as DatabaseWithRelations);
+                allDatabases[i] = parseDbJSON(db as ParsedDatabase);
             });
         }
 

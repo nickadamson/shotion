@@ -1,11 +1,12 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import getClient from "@/prisma/getClient";
 import { User } from "@prisma/client";
-import { ErrorMsg } from "src/utils/types";
+import type { NextApiRequest, NextApiResponse } from "next";
+
+import getClient from "@/prisma/getClient";
+import { ErrorMsg } from "src/pages/api/workspaces";
 
 const { prisma } = getClient();
 
-export default async function handle(req: NextApiRequest, res: NextApiResponse<User | Err>) {
+export default async function handle(req: NextApiRequest, res: NextApiResponse<User | ErrorMsg>) {
     const { userId } = req.query as { [key: string]: string };
     const userData: User = req?.body ? JSON.parse(req.body) : null;
 
@@ -31,7 +32,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse<U
 }
 
 // GET /api/users/:id
-async function handleGET({ userId, res }: { userId: string; res: NextApiResponse<User | Err> }) {
+async function handleGET({ userId, res }: { userId: string; res: NextApiResponse<User | ErrorMsg> }) {
     try {
         const user = await findByIdOrUsername(userId);
 
@@ -54,7 +55,7 @@ async function handlePUT({
 }: {
     userId: string;
     userData: User;
-    res: NextApiResponse<User | Err>;
+    res: NextApiResponse<User | ErrorMsg>;
 }) {
     try {
         const user = await prisma.user.update({
@@ -72,7 +73,7 @@ async function handlePUT({
 }
 
 // DELETE /api/users/:id
-async function handleDELETE({ userId, res }: { userId: string; res: NextApiResponse<User | Err> }) {
+async function handleDELETE({ userId, res }: { userId: string; res: NextApiResponse<User | ErrorMsg> }) {
     try {
         const deletedUser = await prisma.user.delete({
             where: { id: userId },

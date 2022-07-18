@@ -1,24 +1,26 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import getClient from "@/prisma/getClient";
 import { Prisma as P, Page, Database, Block } from "@prisma/client";
-import { ErrorMsg } from "src/utils/types";
-import { formatChildren, parsePageJSON } from ".";
+import type { NextApiRequest, NextApiResponse } from "next";
+
+import getClient from "@/prisma/getClient";
+import { ParsedFormat } from "src/pages/api/formats/[formatId]";
+import { ErrorMsg } from "src/pages/api/workspaces";
 
 const { prisma, provider } = getClient();
 
 export type PageChild = Pick<Database | Page | Block, "id" & "object" & "type">;
 
-export type FormattedPageWRelations = Omit<PageWithRelations, "childrenDbs" & "childrenPages" & "childrenBlocks"> & {
+export type ParsedPage = Omit<PageWithRelations, "format" & "childrenDbs" & "childrenPages" & "childrenBlocks"> & {
+    format: ParsedFormat;
     children: Array<PageChild>;
 };
 
 export type PageWithRelations = P.PageGetPayload<typeof pageIncludeRelations>;
 
-type ResponseData = FormattedPageWRelations | Page | ErrorMsg;
+type ResponseData = ParsedPage | Page | ErrorMsg;
 
 export default async function handle(req: NextApiRequest, res: NextApiResponse<ResponseData>) {
     const { pageId } = req.query as { [key: string]: string };
-    const pageData: Page = req?.body ? JSON.parse(req.body) : null;
+    const pageData: ParsedPage | Partial<Page> = req?.body ? JSON.parse(req.body) : null;
 
     switch (req.method) {
         case "GET":
@@ -64,15 +66,19 @@ async function handlePUT({
     res,
 }: {
     pageId: string;
-    pageData: Page;
+    pageData: ParsedPage | Partial<Page>;
     res: NextApiResponse<ResponseData>;
 }) {
     try {
+        console.log({ pageData });
+        console.log(1);
         if (provider === "sqlite") {
-            pageData = parsePageJSON(pageData);
+            pageData = stringifyPageJSON(pageData as ParsedPage);
         }
-        const data = await updatePage(pageId, pageData);
+        console.log(2);
+        const data = await updatePage(pageId, pageData as Partial<Page>);
 
+        console.log(3);
         res.status(200).json(data);
     } catch (error) {
         console.log(error);
@@ -122,14 +128,14 @@ const pageIncludeRelations = P.validator<P.PageArgs>()({
 });
 
 async function getPageWithRelations(pageId: string): Promise<PageWithRelations> {
-    return await prisma.page.findUniqueOrThrow({
+    return prisma.page.findUniqueOrThrow({
         where: { id: pageId },
         ...pageIncludeRelations,
     });
 }
 
 async function updatePage(pageId: string, pageData: P.PageUpdateInput) {
-    return await prisma.page.update({
+    return prisma.page.update({
         where: {
             id: pageId,
         },
@@ -144,4 +150,52 @@ async function updatePage(pageId: string, pageData: P.PageUpdateInput) {
             propertyValues: pageData?.propertyValues || undefined,
         },
     });
+}
+
+export function formatChildren(data: PageWithRelations): ParsedPage {
+    const formattedPage = { ...data, children: [] };
+    formattedPage.children = [
+        ...(data?.childrenDbs as Pick<Database, "id" & "object" & "type">[]),
+        ...(data?.childrenPages as Pick<Page, "id" & "object" & "type">[]),
+        ...(data?.childrenBlocks as Pick<Block, "id" & "object" & "type">[]),
+    ];
+
+    delete data.childrenBlocks;
+    delete data.childrenPages;
+    delete data.childrenDbs;
+
+    return formattedPage as ParsedPage;
+}
+
+// for sqlite
+export function parsePageJSON(page: PageWithRelations | ParsedPage): ParsedPage {
+    const parsed = {
+        ...page,
+        title: JSON.parse((page?.title as string) ?? undefined),
+        icon: JSON.parse((page?.icon as string) ?? undefined),
+        cover: JSON.parse((page?.cover as string) ?? undefined),
+        propertyValues: JSON.parse((page?.propertyValues as string) ?? undefined),
+        format: {
+            ...page?.format,
+            order: JSON?.parse((page?.format?.order as string) ?? undefined),
+        },
+    };
+
+    return parsed as ParsedPage;
+}
+
+export function stringifyPageJSON(page: ParsedPage): Partial<Page> {
+    const stringified = {
+        ...page,
+        title: JSON.stringify(page?.title ?? undefined),
+        icon: JSON.stringify(page?.icon ?? undefined),
+        cover: JSON.stringify(page?.cover ?? undefined),
+        propertyValues: JSON.stringify(page?.propertyValues ?? undefined),
+        format: {
+            ...(page?.format ?? undefined),
+            order: JSON?.stringify(page?.format?.order) ?? undefined,
+        },
+    };
+
+    return stringified as Partial<Page>;
 }

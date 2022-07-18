@@ -1,11 +1,12 @@
-import useSWR from "swr";
 import { Block } from "@prisma/client";
+import useSWR from "swr";
+
+import { ParsedBlock } from "src/pages/api/blocks/[blockId]";
 import { fetcher } from "src/utils/api";
-import { FormattedBlockWRelations } from "src/pages/api/blocks/[blockId]";
 
 const useBlock = ({ blockId }: { blockId?: string }) => {
     const url = `/api/blocks${blockId ? `/${blockId}` : ""}`;
-    const { data, error } = useSWR<FormattedBlockWRelations>(url, fetcher);
+    const { data, error } = useSWR<ParsedBlock>(url, fetcher);
 
     const state = {
         isLoading: !error && !data,

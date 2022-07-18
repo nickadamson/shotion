@@ -1,7 +1,9 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import getClient from "@/prisma/getClient";
 import { Block } from "@prisma/client";
-import { ErrorMsg } from "src/utils/types";
+import type { NextApiRequest, NextApiResponse } from "next";
+
+import getClient from "@/prisma/getClient";
+import { ErrorMsg } from "src/pages/api/workspaces";
+
 import { FormattedBlockWRelations, parseBlockJSON, stringifyBlockJSON } from "./[blockId]";
 
 const { prisma, provider } = getClient();

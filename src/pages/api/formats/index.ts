@@ -1,7 +1,8 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import getClient from "@/prisma/getClient";
 import { Format } from "@prisma/client";
-import { ErrorMsg } from "src/utils/types";
+import type { NextApiRequest, NextApiResponse } from "next";
+
+import getClient from "@/prisma/getClient";
+import { ErrorMsg } from "src/pages/api/workspaces";
 
 const { prisma } = getClient();
 

@@ -1,11 +1,12 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import getClient from "@/prisma/getClient";
 import { Property } from "@prisma/client";
-import { ErrorMsg } from "src/utils/types";
+import type { NextApiRequest, NextApiResponse } from "next";
+
+import getClient from "@/prisma/getClient";
+import { ErrorMsg } from "src/pages/api/workspaces";
 
 const { prisma } = getClient();
 
-export default async function handle(req: NextApiRequest, res: NextApiResponse<Property | Property[] | Err>) {
+export default async function handle(req: NextApiRequest, res: NextApiResponse<Property | Property[] | ErrorMsg>) {
     const propertyData: Property = req?.body ? JSON.parse(req.body) : null;
 
     switch (req.method) {
@@ -25,7 +26,13 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse<P
 }
 
 // POST /api/properties
-async function handlePOST({ propertyData, res }: { propertyData: Property; res: NextApiResponse<Property | Err> }) {
+async function handlePOST({
+    propertyData,
+    res,
+}: {
+    propertyData: Property;
+    res: NextApiResponse<Property | ErrorMsg>;
+}) {
     try {
         const property = await prisma.property.create({
             data: { ...propertyData },
@@ -38,7 +45,7 @@ async function handlePOST({ propertyData, res }: { propertyData: Property; res: 
     }
 }
 // GET /api/properties
-async function handleGET({ res }: { res: NextApiResponse<Property[] | Err> }) {
+async function handleGET({ res }: { res: NextApiResponse<Property[] | ErrorMsg> }) {
     try {
         const allProperties = await prisma.property.findMany();
 

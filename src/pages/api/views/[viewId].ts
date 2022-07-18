@@ -1,8 +1,19 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import getClient from "@/prisma/getClient";
 import { View } from "@prisma/client";
+import type { NextApiRequest, NextApiResponse } from "next";
+
+import getClient from "@/prisma/getClient";
+
+import { ParsedFormat } from "../formats/[formatId]";
 
 const { prisma } = getClient();
+
+export interface ParsedView {
+    id: string;
+    object: "view";
+    type: string;
+    default: boolean;
+    format: ParsedFormat;
+}
 
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
     const { viewId } = req.query as { [key: string]: string };

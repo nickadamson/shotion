@@ -1,28 +1,44 @@
-import { Block, Database, Page } from "@prisma/client";
-import { useState } from "react";
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+import { Dispatch, FC, SetStateAction, useState } from "react";
+
+import { Workspace } from "@/hooks/useWorkspaces";
 // import MenuDropdown from "./MenuDropdown";
 
-type Props = { activePage?: Page["id"]; workspace?: Database | Page | Block };
-
-const PageNav = (props: Props) => {
-    const { activePage, workspace } = props;
-
-    const [opacity, setOpacity] = useState(0);
+const PageNav: FC<{
+    isSelected: boolean;
+    workspace: Workspace;
+    setRootPage: Dispatch<SetStateAction<Workspace>>;
+}> = ({ isSelected, workspace, setRootPage }) => {
+    // const [opacity, setOpacity] = useState(100);
     const [showDropdown, setShowDropdown] = useState(false);
-    // const history = useHistory();
 
     return (
         <div
+            className={"cursor-pointer " && isSelected ? "border-green-200" : "border-none"}
             key={workspace.id}
-            onMouseEnter={() => setOpacity(100)}
-            onMouseLeave={() => (showDropdown === false ? setOpacity(0) : null)}
+            // onMouseEnter={() => setOpacity(100)}
+            // onMouseLeave={() => setOpacity(0)}
+            onClick={() => {
+                setRootPage(workspace);
+            }}
         >
-            <div>
-                <p>{workspace?.title ?? "Untitled"}</p>
+            <div className="">
+                <p className="">{workspace?.title?.plainText ?? "Untitled"}</p>
             </div>
-            <div style={{ opacity: opacity }}>
-                {/* <MenuDropdown setOpacity={setOpacity} setShowDropdown={setShowDropdown} /> */}
-            </div>
+            {/* <div style={{ opacity }}> */}
+            {/* <MenuDropdown
+                    // pageId={page.id}
+                    // pageName={props.name}
+                    // depth={props.depth}
+                    // handleChange={props.handleChange}
+                    // deletePageMenu={props.deletePageMenu}
+                    // addPage={props.addPage}
+                    // parent={props.parent}
+                    setOpacity={setOpacity}
+                    setShowDropdown={setShowDropdown}
+                /> */}
+            {/* </div> */}
         </div>
     );
 };

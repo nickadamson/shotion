@@ -1,15 +1,11 @@
+import { MoreHoriz } from "@material-ui/icons";
 import { Column, Header, Table } from "@tanstack/react-table";
 import { FC, useState } from "react";
-import { MoreHoriz } from "@material-ui/icons";
-import { TableMeta } from ".";
-import ColumnDropdown from "./Dropdowns/ColumnDropdown";
-import { handleDeleteProperty } from "src/utils/api";
-import { FormattedPageWRelations } from "src/pages/api/pages/[pageId]";
 
 type ColumnHeaderProps = {
-    table: Table<FormattedPageWRelations>;
-    header: Header<FormattedPageWRelations, unknown>;
-    column: Column<FormattedPageWRelations, unknown>;
+    table: Table<ParsedPage>;
+    header: Header<ParsedPage, unknown>;
+    column: Column<ParsedPage, unknown>;
 };
 
 const ColumnHeader: FC<ColumnHeaderProps> = (props: ColumnHeaderProps) => {

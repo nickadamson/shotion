@@ -1,22 +1,54 @@
-import { dbReducer, initTableState } from "@/hooks/useDatabaseReducer";
-import { ChangeEvent, useReducer } from "react";
-import { DatabaseWithRelations } from "src/pages/api/databases/[databaseId]";
-import { useSWRConfig } from "swr";
+/* eslint-disable consistent-return */
+/* eslint-disable array-callback-return */
+import { ChangeEvent, FC, useEffect, useReducer } from "react";
+
+import { dbReducer } from "@/hooks/useDatabaseReducer";
+import { ParsedDatabase } from "src/pages/api/databases/[databaseId]";
+
 import PageTitle from "../Blocks/PageTitle";
-import TableView from "./Views/Table";
+
+import TableView, { initTableState } from "./Views/Table";
 import ViewSelect from "./Views/ViewSelect";
 
-type DatabaseViewerProps = {
-    database: DatabaseWithRelations;
-    temporaryTitleValue?: string;
+interface DatabaseViewerProps {
+    database: ParsedDatabase;
+    temporaryTitleValue: string;
     handleTitleChange: (event: ChangeEvent<HTMLInputElement>) => void;
     updateTitle: () => Promise<void>;
-};
+}
 
-const DatabaseViewer = (props: DatabaseViewerProps) => {
-    const { database, temporaryTitleValue, handleTitleChange, updateTitle } = props;
-    const { mutate } = useSWRConfig();
+const ViewHeader: FC<Partial<DatabaseViewerProps> & { isInline: boolean }> = ({
+    isInline,
+    temporaryTitleValue,
+    handleTitleChange,
+    updateTitle,
+}) =>
+    isInline ? (
+        <>
+            <ViewSelect />
+            <PageTitle
+                temporaryValue={temporaryTitleValue}
+                handleChange={handleTitleChange}
+                updateTitle={updateTitle}
+            />
+        </>
+    ) : (
+        <>
+            <PageTitle
+                temporaryValue={temporaryTitleValue}
+                handleChange={handleTitleChange}
+                updateTitle={updateTitle}
+            />
+            <ViewSelect />
+        </>
+    );
 
+const DatabaseViewer: FC<DatabaseViewerProps> = ({
+    database,
+    temporaryTitleValue = "",
+    handleTitleChange,
+    updateTitle,
+}) => {
     const initialState = {
         database: { ...database },
         activeView: {
@@ -30,30 +62,21 @@ const DatabaseViewer = (props: DatabaseViewerProps) => {
 
     const [state, dispatch] = useReducer(dbReducer, initialState);
 
+    useEffect(() => {
+        console.log("debounce");
+        dispatch({ type: "debounce", payload: { newDb: database } });
+    }, [database]);
+
     return (
         <>
-            {/* <div>DatabaseViewer</div> */}
-            {database.isInline ? (
-                <>
-                    <ViewSelect />
-                    <PageTitle
-                        temporaryValue={temporaryTitleValue}
-                        handleChange={handleTitleChange}
-                        updateTitle={updateTitle}
-                    />
-                </>
-            ) : (
-                <>
-                    <PageTitle
-                        temporaryValue={temporaryTitleValue}
-                        handleChange={handleTitleChange}
-                        updateTitle={updateTitle}
-                    />
-                    <ViewSelect />
-                </>
-            )}
-            {state.activeView.type == "table" && (
-                <TableView databaseId={database.id} initialState={initTableState(database)} dispatch={dispatch} />
+            <ViewHeader
+                isInline={database.isInline}
+                temporaryTitleValue={temporaryTitleValue}
+                handleTitleChange={handleTitleChange}
+                updateTitle={updateTitle}
+            />
+            {state.activeView.type === "table" && (
+                <TableView databaseId={database.id} database={database} dispatch={dispatch} />
             )}
         </>
     );

@@ -1,16 +1,21 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import getClient from "@/prisma/getClient";
 import { Prisma as P } from "@prisma/client";
-import { ErrorMsg } from "src/utils/types";
+import type { NextApiRequest, NextApiResponse } from "next";
 
-const { prisma } = getClient();
+import getClient from "@/prisma/getClient";
+
+export type ErrorMsg = {
+    err?: string | Error;
+    message?: string;
+};
 
 export type WorkspaceResponseData = Array<DatabaseSelect | PageSelect> | ErrorMsg;
 
+const { prisma } = getClient();
+
 export default async function handle(req: NextApiRequest, res: NextApiResponse<WorkspaceResponseData>) {
-    console.log("workspaces GET");
     switch (req.method) {
         case "GET":
+            console.log("get");
             await handleGET({ res });
             break;
 
@@ -26,12 +31,12 @@ async function handleGET({ res }: { res: NextApiResponse<WorkspaceResponseData> 
     try {
         const dbs = await getWorkspaceDbs();
         const pages = await getWorkspacePages();
+        console.log({ dbs, pages });
 
         const data = [...dbs, ...pages];
 
         res.status(200).json(data);
     } catch (error) {
-        console.log("get some fak");
         console.log(error);
         res.status(500).json({ message: `Internal Server Error`, err: error as string });
     }
@@ -49,6 +54,7 @@ const dbSelections = P.validator<P.DatabaseFindManyArgs>()({
         object: true,
         isInline: true,
         type: true,
+        title: true,
     },
 });
 
@@ -60,6 +66,8 @@ const pageSelections = P.validator<P.PageFindManyArgs>()({
         id: true,
         object: true,
         type: true,
+        title: true,
+        childrenPages: true,
     },
 });
 

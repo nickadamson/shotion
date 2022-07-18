@@ -1,17 +1,36 @@
+import { Database, Prisma as P } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
+
 import getClient from "@/prisma/getClient";
-import { Prisma as P, Database } from "@prisma/client";
-import { ErrorMsg } from "src/utils/types";
+import { ErrorMsg } from "src/pages/api/workspaces";
+
+import { ParsedPage } from "../pages/[pageId]";
+import { ParsedProperty } from "../properties/[propertyId]";
+import { ParsedView } from "../views/[viewId]";
 
 const { prisma, provider } = getClient();
 
-export type DatabaseWithRelations = P.DatabaseGetPayload<typeof dbIncludeRelations>;
+type DatabaseWRelations = P.DatabaseGetPayload<typeof dbIncludeRelations>;
 
-type ResponseData = DatabaseWithRelations | Database | ErrorMsg;
+type IntermediaryDatabase = Pick<
+    DatabaseWRelations,
+    "id" & "object" & "cover" & "icon" & "isWorkspace" & "isInline" & "type" & "title" & "description"
+> & {
+    id: string;
+    isInline: boolean;
+};
+
+export type ParsedDatabase = IntermediaryDatabase & {
+    properties: ParsedProperty[];
+    views: ParsedView[];
+    childrenPages: ParsedPage[];
+};
+
+type ResponseData = ParsedDatabase | Database | ErrorMsg;
 
 export default async function handle(req: NextApiRequest, res: NextApiResponse<ResponseData>) {
     const { databaseId } = req.query as { [key: string]: string };
-    const databaseData: Database = req?.body ? JSON.parse(req.body) : null;
+    const databaseData: ParsedDatabase | Partial<Database> = req?.body ? JSON.parse(req.body) : null;
 
     switch (req.method) {
         case "GET":
@@ -37,10 +56,10 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse<R
 // GET /api/databases/:id
 async function handleGET({ databaseId, res }: { databaseId: string; res: NextApiResponse<ResponseData> }) {
     try {
-        let data = await getDatabaseWithRelations(databaseId);
+        let data: DatabaseWRelations | ParsedDatabase = await getDatabaseWithRelations(databaseId);
 
         if (provider === "sqlite") {
-            data = parseDbJSON(data);
+            data = parseDbJSON(data as DatabaseWRelations);
         }
 
         res.status(200).json(data);
@@ -57,15 +76,15 @@ async function handlePUT({
     res,
 }: {
     databaseId: string;
-    databaseData: Database;
+    databaseData: ParsedDatabase | Partial<Database>;
     res: NextApiResponse<ResponseData>;
 }) {
     try {
         if (provider === "sqlite") {
-            databaseData = stringifyDbJSON(databaseData as DatabaseWithRelations);
+            databaseData = stringifyDbJSON(databaseData as ParsedDatabase);
         }
 
-        const data = await updateDatabase(databaseId, databaseData);
+        const data = await updateDatabase(databaseId, databaseData as Partial<Database>);
 
         res.status(200).json(data as ResponseData);
     } catch (error) {
@@ -104,8 +123,8 @@ const dbIncludeRelations = P.validator<P.DatabaseArgs>()({
     },
 });
 
-async function getDatabaseWithRelations(databaseId: string): Promise<DatabaseWithRelations> {
-    return await prisma.database.findUniqueOrThrow({
+async function getDatabaseWithRelations(databaseId: string): Promise<DatabaseWRelations> {
+    return prisma.database.findUniqueOrThrow({
         where: { id: databaseId },
         ...dbIncludeRelations,
     });
@@ -160,70 +179,80 @@ async function updateDatabase(databaseId: string, databaseData: P.DatabaseUpdate
 }
 
 // for sqlite
-export function parseDbJSON(db: DatabaseWithRelations): DatabaseWithRelations {
-    db.title = JSON.parse(db?.title as string) ?? undefined;
-    db.description = JSON.parse(db?.description as string) ?? undefined;
-    db.icon = JSON.parse(db?.icon as string) ?? undefined;
-    db.cover = JSON.parse(db?.cover as string) ?? undefined;
+export function parseDbJSON(db: DatabaseWRelations): ParsedDatabase {
+    const parsed = {
+        ...db,
+        title: JSON.parse(db?.title as string) ?? undefined,
+        description: JSON.parse(db?.description as string) ?? undefined,
+        icon: JSON.parse(db?.icon as string) ?? undefined,
+        cover: JSON.parse(db?.cover as string) ?? undefined,
 
-    db.properties =
-        db?.properties?.map((property) => ({
+        properties: db?.properties?.map((property) => ({
             ...property,
-            details: JSON.parse(property?.details as string) ?? undefined,
-        })) ?? undefined;
+            details: JSON.parse((property?.details as string) ?? undefined),
+        })),
 
-    db.childrenPages =
-        db?.childrenPages?.map((page) => {
-            page.title = JSON.parse(page?.title as string) ?? undefined;
-            page.icon = JSON.parse(page?.icon as string) ?? undefined;
-            page.cover = JSON.parse(page?.cover as string) ?? undefined;
-            page.propertyValues = JSON.parse(page?.propertyValues as string) ?? undefined;
-            return page;
-        }) ?? undefined;
+        childrenPages: db?.childrenPages?.map((page) => {
+            const parsedPage = {
+                ...page,
+                title: JSON.parse((page?.title as string) ?? undefined),
+                icon: JSON.parse((page?.icon as string) ?? undefined),
+                cover: JSON.parse((page?.cover as string) ?? undefined),
+                propertyValues: JSON.parse((page?.propertyValues as string) ?? undefined),
+            };
+            return { ...parsedPage };
+        }),
 
-    db.views =
-        db?.views?.map((view) => {
-            if (view?.format) {
-                const { format } = view;
-                view.format.details = JSON.parse(format?.details as string) ?? undefined;
-                view.format.order = JSON.parse(format?.order as string) ?? undefined;
-            }
-            return view;
-        }) ?? undefined;
+        views: db?.views?.map((view) => {
+            const parsedView = {
+                ...view,
+                format: {
+                    ...view.format,
+                    details: JSON.parse((view?.format?.details as string) ?? undefined),
+                },
+            };
 
-    return db;
+            return parsedView;
+        }),
+    };
+
+    return parsed as ParsedDatabase;
 }
 
-export function stringifyDbJSON(db: DatabaseWithRelations): DatabaseWithRelations {
-    db.title = JSON.stringify(db?.title as string) ?? undefined;
-    db.description = JSON.stringify(db?.description as string) ?? undefined;
-    db.icon = JSON.stringify(db?.icon as string) ?? undefined;
-    db.cover = JSON.stringify(db?.cover as string) ?? undefined;
-
-    db.properties =
-        db?.properties?.map((property) => ({
+export function stringifyDbJSON(db: ParsedDatabase): Partial<Database> {
+    const stringified = {
+        ...db,
+        title: JSON.stringify(db?.title as string) ?? undefined,
+        description: JSON.stringify(db?.description as string) ?? undefined,
+        icon: JSON.stringify(db?.icon as string) ?? undefined,
+        cover: JSON.stringify(db?.cover as string) ?? undefined,
+        properties: db?.properties?.map((property) => ({
             ...property,
             details: JSON.stringify(property?.details as string) ?? undefined,
-        })) ?? undefined;
+        })),
+        childrenPages: db?.childrenPages?.map((page) => {
+            const stringifiedPage = {
+                ...page,
+                title: JSON.stringify((page?.title as string) ?? undefined),
+                icon: JSON.stringify((page?.icon as string) ?? undefined),
+                cover: JSON.stringify((page?.cover as string) ?? undefined),
+                propertyValues: JSON.stringify((page?.propertyValues as string) ?? undefined),
+            };
+            return { ...stringifiedPage };
+        }),
 
-    db.childrenPages =
-        db?.childrenPages?.map((page) => {
-            page.title = JSON.stringify(page?.title as string) ?? undefined;
-            page.icon = JSON.stringify(page?.icon as string) ?? undefined;
-            page.cover = JSON.stringify(page?.cover as string) ?? undefined;
-            page.propertyValues = JSON.stringify(page?.propertyValues as string) ?? undefined;
-            return page;
-        }) ?? undefined;
+        views: db?.views?.map((view) => {
+            const stringifiedView = {
+                ...view,
+                format: {
+                    ...view.format,
+                    details: JSON.stringify((view?.format?.details as string) ?? undefined),
+                },
+            };
 
-    db.views =
-        db?.views?.map((view) => {
-            if (view?.format) {
-                const { format } = view;
-                format.details = JSON.stringify(format?.details as string) ?? undefined;
-                format.order = JSON.stringify(format?.order as string) ?? undefined;
-            }
-            return view;
-        }) ?? undefined;
+            return { ...stringifiedView };
+        }),
+    };
 
-    return db;
+    return stringified as Partial<Database>;
 }

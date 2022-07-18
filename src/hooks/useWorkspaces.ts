@@ -1,41 +1,22 @@
+import { BLOCKTYPE } from "@prisma/client";
 import useSWR from "swr";
+
+import { ParsedPage } from "src/pages/api/pages/[pageId]";
 import { fetcher } from "src/utils/api";
-import { Database, Page } from "@prisma/client";
-import { DatabaseSelect, PageSelect } from "src/pages/api/workspaces";
+import { RTO } from "src/utils/types";
+
+export interface Workspace {
+    object: string;
+    id: string;
+    type: BLOCKTYPE;
+    isInline?: boolean;
+    title: RTO;
+    childrenPages: ParsedPage[];
+}
 
 const useWorkspaces = () => {
     const url = `/api/workspaces`;
-    const { data, error } = useSWR<(DatabaseSelect | PageSelect)[]>(url, fetcher);
-
-    const createNewWorkspace = async (newWorkspace: Partial<Database | Page>): Promise<Database | Page | undefined> => {
-        let response: Response | undefined;
-        try {
-            switch (newWorkspace.object) {
-                case "database":
-                    response = await fetch("api/databases", {
-                        method: "POST",
-                        body: JSON.stringify(newWorkspace),
-                    });
-
-                    break;
-                case "page":
-                    response = await fetch("api/pages", {
-                        method: "POST",
-                        body: JSON.stringify(newWorkspace),
-                    });
-
-                    break;
-            }
-
-            return (response as Response).json();
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
-    const functions = {
-        createNewWorkspace,
-    };
+    const { data, error } = useSWR<Workspace[]>(url, fetcher);
 
     const state = {
         spacesLoading: !error && !data,
@@ -44,7 +25,6 @@ const useWorkspaces = () => {
 
     return {
         workspaces: data,
-        ...functions,
         ...state,
     };
 };

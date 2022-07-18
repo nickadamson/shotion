@@ -1,21 +1,19 @@
 import { RTO } from "./types";
 
-export const formatRTO = (rto?: RTO): RTO => {
-    return {
-        type: "text",
-        text: { content: rto?.text?.content ?? "", link: rto?.text?.link ?? null },
-        annotations: {
-            bold: rto?.annotations?.bold ?? false,
-            italic: rto?.annotations?.italic ?? false,
-            strikethrough: rto?.annotations?.strikethrough ?? false,
-            underline: rto?.annotations?.underline ?? false,
-            code: rto?.annotations?.code ?? false,
-            color: rto?.annotations?.color ?? "default",
-        },
-        plainText: rto?.plainText ?? "",
-        href: rto?.href ?? null,
-    };
-};
+export const formatRTO = (rto?: Partial<RTO>): RTO => ({
+    type: "text",
+    text: { content: rto?.text?.content ?? rto?.plainText ?? "", link: rto?.text?.link ?? undefined },
+    annotations: {
+        bold: rto?.annotations?.bold ?? false,
+        italic: rto?.annotations?.italic ?? false,
+        strikethrough: rto?.annotations?.strikethrough ?? false,
+        underline: rto?.annotations?.underline ?? false,
+        code: rto?.annotations?.code ?? false,
+        color: rto?.annotations?.color ?? "default",
+    },
+    plainText: rto?.plainText ?? rto?.text?.content ?? "",
+    href: rto?.href ?? null,
+});
 
 export const getDefaultDetailsForPropertyType = (type): Record<string, any> | void => {
     switch (type) {
@@ -48,10 +46,10 @@ export const getDefaultDetailsForPropertyType = (type): Record<string, any> | vo
         case "number":
         case "date":
         case "person":
-            return;
+            return {};
         default:
             console.log(type, " not yet implemented");
-            return;
+            return {};
     }
 };
 
