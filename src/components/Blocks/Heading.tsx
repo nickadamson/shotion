@@ -9,7 +9,7 @@ type Props = {
     color?: string;
 };
 
-const Heading = (props: Props) => {
+function Heading(props: Props) {
     const { temporaryValue, headingType, handleChange, updateHeading, color = "default" } = props;
 
     const classNameString =
@@ -65,6 +65,6 @@ const Heading = (props: Props) => {
             )}
         </div>
     );
-};
+}
 
 export default Heading;

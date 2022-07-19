@@ -185,7 +185,7 @@ enum PROPERTYTYPE {
   text
   number
   select
-  multiSelect
+  multiselect
   date
   person
   file

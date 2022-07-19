@@ -9,7 +9,7 @@ type Props = {
     setShowDropdown: Dispatch<SetStateAction<boolean>>;
 };
 
-const ColumnDropdown = (props: Props) => {
+function ColumnDropdown(props: Props) {
     const { columnId, databaseId, deleteColumn, setShowDropdown } = props;
     // const ref = useRef();
     const [showPropertySelect, setShowPropertySelect] = useState(false);
@@ -45,7 +45,7 @@ const ColumnDropdown = (props: Props) => {
                             {/* Render the correct icon based on the property type of the column */}
                             <span
                             // className="table-dropdown-icon"
-                             />
+                            />
 
                             <p className="property-type">
                                 {/* {props.property_type === "Multi_select"
@@ -141,7 +141,7 @@ const ColumnDropdown = (props: Props) => {
                 >
                     <i
                     // className="far fa-trash-alt"
-                     />
+                    />
                     <p>Delete column</p>
                 </a>
             </div>
@@ -173,6 +173,6 @@ const ColumnDropdown = (props: Props) => {
             )}
         </div>
     );
-};
+}
 
 export default ColumnDropdown;

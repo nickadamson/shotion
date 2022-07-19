@@ -3,6 +3,7 @@ import { ColumnOrderState, VisibilityState } from "@tanstack/react-table";
 import cuid from "cuid";
 
 import { ParsedFormat } from "src/pages/api/formats/[formatId]";
+import { ParsedPage } from "src/pages/api/pages/[pageId]";
 import { ParsedView } from "src/pages/api/views/[viewId]";
 
 import { getDefaultDetailsForPropertyType, getDefaultValueForPropertyType } from ".";
@@ -15,7 +16,7 @@ interface Res extends Response {
 export const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 // helper
-export const putter = (url: string, method: "POST" | "PUT" | "DELETE", body?: Record<any, any>) =>
+export const putter = (url: string, method: "POST" | "PUT" | "DELETE", body?: Record<string, unknown>) =>
     fetch(url, {
         method,
         body: JSON.stringify({ ...body }),
@@ -143,7 +144,7 @@ export const handleNewProperty = async ({
 }: {
     databaseId: string;
     views: ParsedView[];
-    childrenPages?: Pick<Page, "id" | "propertyValues">[];
+    childrenPages?: ParsedPage[];
 }) => {
     let createdProperty;
     let updatedFormats = false; // for logging errors
@@ -161,6 +162,7 @@ export const handleNewProperty = async ({
         // 2 push property into all formats associated with the db
         const formatPromises = views.map(async (view) => {
             const width = 32;
+            console.log(view);
             const { details } = view.format;
 
             details.columnOrder.push(property.id);

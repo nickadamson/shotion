@@ -12,7 +12,7 @@
     "homepage": "https://github.com/nickadamson/shotion#readme",
     "prisma": {
         "schema": "db/prisma/schema.prisma",
-        "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} db/prisma/seed.js"
+        "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} db/prisma/seed.ts"
     },
     "scripts": {
         "dev": "next dev",
@@ -43,6 +43,8 @@
         "swr": "^1.3.0"
     },
     "devDependencies": {
+        "@headlessui/react": "^1.6.6",
+        "@heroicons/react": "^1.0.6",
         "@next/eslint-plugin-next": "^12.2.2",
         "@types/node": "^18.0.4",
         "@types/react": "18.0.15",

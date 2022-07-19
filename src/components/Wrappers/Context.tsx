@@ -19,7 +19,7 @@ export interface PartialWorkspaceContext {
     children?: ReactNode;
 }
 
-const DefaultLink: FC = (props) => <a target="blank"  {...props} />;
+const DefaultLink: FC = (props) => <a target="blank" {...props} />;
 const DefaultLinkMemo = memo(DefaultLink);
 const DefaultPageLink: FC = (props) => <a {...props} />;
 const DefaultPageLinkMemo = memo(DefaultPageLink);
@@ -27,8 +27,8 @@ const DefaultPageLinkMemo = memo(DefaultPageLink);
 export const dummyLink = ({ href, rel, target, title, ...rest }) => <span {...rest} />;
 
 // eslint-disable-next-line react/display-name
-const dummyComponent = (name: string) => () => {
-    console.warn(`Warning: using empty component "${name}" (you should override this in WorkspaceRenderer.components)`);
+const dummyComponent = (name: string) => function() {
+    console.warn(`Warning: using empty component "$" (you should override this in WorkspaceRenderer.components)`);
 
     return null;
 };
@@ -102,6 +102,7 @@ export const WorkspaceContextProvider: FC<PartialWorkspaceContext> = ({
     children,
     ...rest
 }) => {
+    // eslint-disable-next-line no-restricted-syntax
     for (const key of Object.keys(rest)) {
         if (rest[key] === undefined) {
             delete rest[key];

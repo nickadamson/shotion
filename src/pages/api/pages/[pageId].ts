@@ -171,13 +171,13 @@ export function formatChildren(data: PageWithRelations): ParsedPage {
 export function parsePageJSON(page: PageWithRelations | ParsedPage): ParsedPage {
     const parsed = {
         ...page,
-        title: JSON.parse((page?.title as string) ?? undefined),
-        icon: JSON.parse((page?.icon as string) ?? undefined),
-        cover: JSON.parse((page?.cover as string) ?? undefined),
-        propertyValues: JSON.parse((page?.propertyValues as string) ?? undefined),
+        title: JSON?.parse(page?.title as string) ?? undefined,
+        icon: JSON?.parse(page?.icon as string) ?? undefined,
+        cover: JSON?.parse(page?.cover as string) ?? undefined,
+        propertyValues: JSON?.parse(page?.propertyValues as string) ?? undefined,
         format: {
             ...page?.format,
-            order: JSON?.parse((page?.format?.order as string) ?? undefined),
+            order: JSON?.parse(page?.format?.order as string) ?? undefined,
         },
     };
 

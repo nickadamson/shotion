@@ -10,7 +10,7 @@ export type ErrorMsg = {
 
 export type WorkspaceResponseData = Array<DatabaseSelect | PageSelect> | ErrorMsg;
 
-const { prisma } = getClient();
+const { prisma, provider } = getClient();
 
 export default async function handle(req: NextApiRequest, res: NextApiResponse<WorkspaceResponseData>) {
     switch (req.method) {
@@ -34,7 +34,11 @@ async function handleGET({ res }: { res: NextApiResponse<WorkspaceResponseData> 
         console.log({ dbs, pages });
 
         const data = [...dbs, ...pages];
-
+        if (provider === "sqlite") {
+            data.map((obj, i) => {
+                data[i].title = JSON.parse(data[i].title);
+            });
+        }
         res.status(200).json(data);
     } catch (error) {
         console.log(error);

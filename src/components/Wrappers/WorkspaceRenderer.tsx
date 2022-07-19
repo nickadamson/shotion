@@ -2,6 +2,7 @@ import { FC } from "react";
 
 import { WorkspaceContextProvider } from "./Context";
 
+// eslint-disable-next-line import/no-cycle
 import { HookWrapper } from "./index";
 
 export const WorkspaceRenderer: FC<{
@@ -10,20 +11,18 @@ export const WorkspaceRenderer: FC<{
     fullPage?: boolean;
     darkMode?: boolean;
 }> = ({ workspaceId, workspaceObject, fullPage, darkMode, ...rest }) => (
-        <WorkspaceContextProvider
-            fullPage={fullPage}
-            workspaceId={workspaceId}
-            workspaceObject={workspaceObject}
-            darkMode={darkMode}
-        >
-            <Renderer id={workspaceId} object={workspaceObject} {...rest} />
-        </WorkspaceContextProvider>
-    );
+    <WorkspaceContextProvider
+        fullPage={fullPage}
+        workspaceId={workspaceId}
+        workspaceObject={workspaceObject}
+        darkMode={darkMode}
+    >
+        <Renderer id={workspaceId} object={workspaceObject} {...rest} />
+    </WorkspaceContextProvider>
+);
 
 export const Renderer: FC<{
     id: string;
     object: string;
     level?: number;
-}> = ({ level = 0, id, object }) => (
-        <HookWrapper id={id} objectType={object} level={level} />
-    );
+}> = ({ level = 0, id, object }) => <HookWrapper id={id} objectType={object} level={level} />;

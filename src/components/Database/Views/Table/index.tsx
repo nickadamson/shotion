@@ -13,7 +13,7 @@ import {
 } from "@tanstack/react-table";
 import { Dispatch, FC, useEffect, useState } from "react";
 
-import { DatabaseAction } from "@/hooks/useDatabaseReducer";
+// import { DatabaseAction } from "@/hooks/useDatabaseReducer";
 import { ParsedDatabase } from "src/pages/api/databases/[databaseId]";
 import { ParsedFormat } from "src/pages/api/formats/[formatId]";
 import { ParsedPage } from "src/pages/api/pages/[pageId]";
@@ -29,14 +29,14 @@ export interface TableMeta {
     deleteRow: (rowIndex: number) => void;
     updateData: (rowIndex: number, columnId: string, value: number | string) => void;
     databaseId: string;
-    dispatch: Dispatch<DatabaseAction>; // DatabaseAction>;
+    // dispatch: Dispatch<DatabaseAction>; // DatabaseAction>;
     views: ParsedView[]; // TableViewsMeta;
 }
 
 interface TableProps {
-    databaseId: string;
+    // databaseId: string;
     database: ParsedDatabase;
-    dispatch: Dispatch<DatabaseAction>;
+    // dispatch: Dispatch<DatabaseAction>;
 }
 
 /**
@@ -69,12 +69,8 @@ const accessorFunction = ({ originalRow, propertyId, index, type, details }) => 
     switch (type) {
         case "title":
             return originalRow?.title?.plainText;
-        case "text":
-            return originalRow?.propertyValues?.[`${propertyId}`]?.plainText;
-        case "select":
-            return originalRow?.propertyValues?.[`${propertyId}`]?.value;
         default:
-            return JSON.stringify(originalRow.propertyValues[`${propertyId}`]);
+            return originalRow?.propertyValues?.[`${propertyId}`];
     }
 };
 
@@ -83,7 +79,7 @@ const getTableColumnsFromDbProperties = (properties: ParsedProperty[]): ColumnDe
         id: `${property?.id}`,
         name: `${property?.name}`,
         type: property.type,
-        details: property?.details,
+        details: property.details,
         accessorKey: `${property.id}`,
         accessorFn: (originalRow, index) =>
             accessorFunction({
@@ -133,7 +129,7 @@ export const initTableState = (db: ParsedDatabase): TableState => {
     };
 };
 
-const TableView: FC<TableProps> = ({ databaseId, database, dispatch }) => {
+const TableView: FC<TableProps> = ({ database }) => {
     const [tableViewState, setTableViewState] = useState<TableState>(initTableState(database));
 
     useEffect(() => {
@@ -150,10 +146,10 @@ const TableView: FC<TableProps> = ({ databaseId, database, dispatch }) => {
             },
         }));
 
-        dispatch({
-            type: "col_vis",
-            payload: { newState },
-        });
+        // dispatch({
+        //     type: "col_vis",
+        //     payload: { newState },
+        // });
     };
 
     const handleColumnOrderChange = (newState) => {
@@ -182,8 +178,8 @@ const TableView: FC<TableProps> = ({ databaseId, database, dispatch }) => {
         onColumnOrderChange: (newState) => handleColumnOrderChange(newState),
         columnResizeMode: tableViewState?.columnResizeMode,
         meta: {
-            databaseId,
-            dispatch,
+            databaseId: database.id,
+            // dispatch,
             views: tableViewState.views,
             deleteRow: (rowIndex) => {
                 setTableViewState((prevState) => ({

@@ -1,6 +1,6 @@
 export type RTO = {
     type: "text";
-    text: { content: string | undefined; link: string | undefined };
+    text: { content: string | undefined; link?: string | undefined };
     annotations: {
         bold: boolean;
         italic: boolean;
@@ -10,5 +10,5 @@ export type RTO = {
         color: string | undefined;
     };
     plainText: string | undefined;
-    href: string | undefined;
+    href?: string | undefined;
 };

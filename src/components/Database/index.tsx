@@ -49,23 +49,23 @@ const DatabaseViewer: FC<DatabaseViewerProps> = ({
     handleTitleChange,
     updateTitle,
 }) => {
-    const initialState = {
-        database: { ...database },
-        activeView: {
-            ...database.views.map((view) => {
-                if (view.default) {
-                    return { ...view };
-                }
-            })[0],
-        },
-    };
+    // const initialState = {
+    //     database: { ...database },
+    //     activeView: {
+    //         ...database.views.map((view) => {
+    //             if (view.default) {
+    //                 return { ...view };
+    //             }
+    //         })[0],
+    //     },
+    // };
+    const state = { activeView: { type: "table" } };
+    // const [state, dispatch] = useReducer(dbReducer, initialState);
 
-    const [state, dispatch] = useReducer(dbReducer, initialState);
-
-    useEffect(() => {
-        console.log("debounce");
-        dispatch({ type: "debounce", payload: { newDb: database } });
-    }, [database]);
+    // useEffect(() => {
+    //     console.log("debounce");
+    //     dispatch({ type: "debounce", payload: { newDb: database } });
+    // }, [database]);
 
     return (
         <>
@@ -75,9 +75,7 @@ const DatabaseViewer: FC<DatabaseViewerProps> = ({
                 handleTitleChange={handleTitleChange}
                 updateTitle={updateTitle}
             />
-            {state.activeView.type === "table" && (
-                <TableView databaseId={database.id} database={database} dispatch={dispatch} />
-            )}
+            {state.activeView.type === "table" && <TableView database={database} />}
         </>
     );
 };

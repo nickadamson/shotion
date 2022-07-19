@@ -74,10 +74,17 @@ async function createToDoWorkspacePage() {
                         ],
                     },
                     properties: {
-                        create: [{ ...inlineDBTitleProperty }, { ...inlineDBSelectProperty }],
+                        create: [
+                            { ...inlineDBTitleProperty },
+                            { ...inlineDBSelectProperty },
+                            { ...inlineDBTextProperty },
+                            { ...inlineDBMultiselectProperty },
+                            { ...inlineDBDateProperty },
+                            { ...inlineDBCheckboxProperty },
+                        ],
                     },
                     childrenPages: {
-                        create: [{ ...inlineDBEntry1 }, { ...inlineDBEntry2 }],
+                        create: [{ ...inlineDBEntry1 }, { ...inlineDBEntry2 }, { ...inlineDBEntry3 }],
                     },
                 },
             ],
@@ -308,7 +315,14 @@ const inlineDBTableView = {
 const inlineDBTableFormat = {
     id: "inlineDBTableFormat",
     details: {
-        order: ["inlineDBTitleProperty", "inlineDBSelectProperty"],
+        columnOrder: [
+            "inlineDBTitleProperty",
+            "inlineDBSelectProperty",
+            "inlineDBTextProperty",
+            "inlineDBMultiselectProperty",
+            "inlineDBDateProperty",
+            "inlineDBCheckboxProperty",
+        ],
         filters: [{}],
         sorts: [
             {
@@ -320,10 +334,21 @@ const inlineDBTableFormat = {
         columnVisibility: {
             inlineDBTitleProperty: true,
             inlineDBSelectProperty: true,
+            inlineDBTextProperty: true,
+            inlineDBMultiselectProperty: true,
+            inlineDBDateProperty: true,
+            inlineDBCheckboxProperty: true,
         },
-        columnSizing: {
-            inlineDBTitleProperty: 50,
-            inlineDBSelectProperty: 100,
+        tableSizing: {
+            tableWidth: 600,
+            columnWidths: {
+                inlineDBTitleProperty: 100,
+                inlineDBSelectProperty: 100,
+                inlineDBTextProperty: 100,
+                inlineDBMultiselectProperty: 100,
+                inlineDBDateProperty: 100,
+                inlineDBCheckboxProperty: 100,
+            },
         },
     },
 };
@@ -331,10 +356,7 @@ const inlineDBTableFormat = {
 const inlineDBTitleProperty = {
     id: "inlineDBTitleProperty",
     type: "title",
-    name: "title",
-    // parentDbId: "inlineDBdatabase",
-    // formatId: "",
-    // columnId: "",
+    name: "Task",
 };
 
 const inlineDBSelectProperty = {
@@ -343,21 +365,63 @@ const inlineDBSelectProperty = {
     details: {
         options: [
             {
-                id: "1a68efdc-c888-4dc0-bae9-f66fbedcfc9a",
+                id: "s1",
                 name: "selectOption1",
+                color: "orange",
+            },
+            {
+                id: "s2",
+                name: "selectOption2",
+                color: "default",
+            },
+            {
+                id: "s3",
+                name: "selectOption3",
+                color: "pink",
+            },
+        ],
+    },
+    name: "option",
+};
+const inlineDBTextProperty = {
+    id: "inlineDBTextProperty",
+    type: "text",
+    name: "notes",
+};
+
+const inlineDBMultiselectProperty = {
+    id: "inlineDBMultiselectProperty",
+    type: "multiselect",
+    details: {
+        options: [
+            {
+                id: "ms1",
+                name: "tag1",
                 color: "yellow",
             },
             {
-                id: "c730a2d3-6118-4ca9-9ea3-9536fb014083",
-                name: "selectOption2",
-                color: "default",
+                id: "ms2",
+                name: "tag2",
+                color: "green",
+            },
+            {
+                id: "ms3",
+                name: "tag2",
+                color: "blue",
             },
         ],
     },
     name: "tags",
-    // parentDbId: "inlineDBdatabase",
-    // formatId: "",
-    // columnId: "",
+};
+const inlineDBDateProperty = {
+    id: "inlineDBDateProperty",
+    type: "date",
+    name: "Due Date",
+};
+const inlineDBCheckboxProperty = {
+    id: "inlineDBCheckboxProperty",
+    type: "checkbox",
+    name: "completed",
 };
 
 const inlineDBEntry1 = {
@@ -367,7 +431,7 @@ const inlineDBEntry1 = {
     type: "tableRow",
     title: {
         type: "text",
-        text: { content: "Entry 1", link: null },
+        text: { content: "Task 1", link: null },
         annotations: {
             bold: false,
             italic: false,
@@ -376,11 +440,15 @@ const inlineDBEntry1 = {
             code: false,
             color: "default",
         },
-        plainText: "Entry 1",
+        plainText: "Task 1",
         href: null,
     },
     propertyValues: {
-        inlineDBSelectProperty: { value: "selectOption1" },
+        inlineDBSelectProperty: "s1",
+        inlineDBTextProperty: "hello world",
+        inlineDBMultiselectProperty: ["ms2", "ms3"],
+        inlineDBDateProperty: "2022-12-01",
+        inlineDBCheckboxProperty: true,
     },
 };
 const inlineDBEntry2 = {
@@ -390,7 +458,7 @@ const inlineDBEntry2 = {
     type: "tableRow",
     title: {
         type: "text",
-        text: { content: "Entry 2", link: null },
+        text: { content: "Task 2", link: null },
         annotations: {
             bold: false,
             italic: false,
@@ -399,18 +467,50 @@ const inlineDBEntry2 = {
             code: false,
             color: "default",
         },
-        plainText: "Entry 2",
+        plainText: "Task 2",
         href: null,
     },
     propertyValues: {
-        inlineDBSelectProperty: { value: null },
+        inlineDBSelectProperty: "s2",
+        inlineDBTextProperty: "next up",
+        inlineDBMultiselectProperty: ["ms2"],
+        inlineDBDateProperty: "2022-12-02",
+        inlineDBCheckboxProperty: false,
+    },
+};
+
+const inlineDBEntry3 = {
+    id: "inlineDBEntry3",
+    object: "page",
+    isWorkspace: false,
+    type: "tableRow",
+    title: {
+        type: "text",
+        text: { content: "Task 3", link: null },
+        annotations: {
+            bold: false,
+            italic: false,
+            strikethrough: false,
+            underline: false,
+            code: false,
+            color: "default",
+        },
+        plainText: "Task 3",
+        href: null,
+    },
+    propertyValues: {
+        inlineDBSelectProperty: "s3",
+        inlineDBTextProperty: "important",
+        inlineDBMultiselectProperty: ["ms1", "ms2", "ms3"],
+        inlineDBDateProperty: "2022-12-03",
+        inlineDBCheckboxProperty: false,
     },
 };
 
 const divider = {
     object: "block",
     type: "divider",
-    // parentBlockId: "firstColumn",
+
     details: { orientation: "horizontal" },
 };
 
@@ -421,20 +521,17 @@ const columnListAkaRow = {
     details: {
         columns: 2,
     },
-    // parentPageId: "toDoWorkspacePage",
 };
 const firstColumn = {
     object: "block",
     id: "firstColumn",
     type: "column",
-    // parentBlockId: "columnListAkaRow",
 };
 
 const dividerHorizontalFirstColumn = {
     object: "block",
     id: "horizontalDivider",
     type: "divider",
-    // parentBlockId: "firstColumn",
 };
 
 const secondColumn = {

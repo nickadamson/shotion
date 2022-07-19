@@ -2,6 +2,12 @@ import { MoreHoriz } from "@material-ui/icons";
 import { Column, Header, Table } from "@tanstack/react-table";
 import { FC, useState } from "react";
 
+import { ParsedPage } from "src/pages/api/pages/[pageId]";
+
+import ColumnDropdown from "./Dropdowns/ColumnDropdown";
+
+import { TableMeta } from ".";
+
 type ColumnHeaderProps = {
     table: Table<ParsedPage>;
     header: Header<ParsedPage, unknown>;

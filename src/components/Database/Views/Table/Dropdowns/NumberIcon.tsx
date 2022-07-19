@@ -2,6 +2,8 @@ import React from "react";
 
 type Props = {};
 
-const NumberIcon = (props: Props) => <i className="fas fa-hashtag" />;
+function NumberIcon(props: Props) {
+  return <i className="fas fa-hashtag" />
+}
 
 export default NumberIcon;

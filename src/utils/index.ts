@@ -20,19 +20,15 @@ export const getDefaultDetailsForPropertyType = (type): Record<string, any> | vo
         // fallthrough
         case "select":
         case "multiSelect":
-            return {
-                options: [
-                    // { name: "Option 1", color: "default" }
-                ],
-            };
+            return [];
 
-        case "file":
         case "relation":
-            return { object: null, id: null };
+            return { object: null, id: null, relation: null };
         case "other":
             return { info: null };
 
         // fallthrough
+        case "file":
         case "checkbox":
         case "url":
         case "email":
@@ -46,21 +42,17 @@ export const getDefaultDetailsForPropertyType = (type): Record<string, any> | vo
         case "number":
         case "date":
         case "person":
-            return {};
+            return null;
         default:
             console.log(type, " not yet implemented");
-            return {};
+            return null;
     }
 };
 
 export const getDefaultValueForPropertyType = (type) => {
     switch (type) {
         case "text":
-            return { plainText: null };
-        case "number":
-            return; // 0?
-        case "select":
-            return { selectedOption: null };
+            return "";
         case "multiSelect":
             return [];
         case "file":
@@ -73,6 +65,8 @@ export const getDefaultValueForPropertyType = (type) => {
             return { info: null };
 
         // fallthrough
+        case "number":
+        case "select":
         case "date":
         case "person":
         case "url":

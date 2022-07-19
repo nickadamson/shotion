@@ -10,9 +10,12 @@ import { ParsedPage } from "src/pages/api/pages/[pageId]";
 import { formatRTO } from "src/utils";
 
 import { BlockTypeRenderer } from "./BlockTypeRenderer";
+// eslint-disable-next-line import/no-cycle
 import { Renderer } from "./WorkspaceRenderer";
 
-export const HookWrapper = ({ id, objectType, level, ...props }: { id: string; objectType: string; level: number }) => {
+// eslint-disable-next-line import/prefer-default-export
+export function HookWrapper({ id, objectType, level, ...props }: { id: string; objectType: string; level: number }) {
+    // eslint-disable-next-line default-case
     switch (objectType) {
         case "database":
             return <UseDatabaseWrapper id={id} level={level} {...props} />;
@@ -21,7 +24,7 @@ export const HookWrapper = ({ id, objectType, level, ...props }: { id: string; o
         case "block":
             return <UseBlockWrapper id={id} level={level} {...props} />;
     }
-};
+}
 
 const BlockRenderer: FC<{
     object: ParsedDatabase | ParsedPage | ParsedBlock;
@@ -35,7 +38,7 @@ const BlockRenderer: FC<{
             if (object?.type === "text" || object?.type?.includes("heading")) {
                 setTemporaryValue((object as ParsedBlock)?.details?.richText?.[0]?.plainText);
             } else if (
-                (object?.object == "page" || object?.object == "database") &&
+                (object?.object === "page" || object?.object === "database") &&
                 (object as ParsedDatabase | ParsedPage)?.title
             ) {
                 setTemporaryValue((object as ParsedDatabase | ParsedPage)?.title?.plainText);
@@ -47,7 +50,7 @@ const BlockRenderer: FC<{
         // TODO parse rich text
         const newTitle = formatRTO(temporaryValue);
 
-        temporaryValue;
+        // temporaryValue;
         await cleanupAndUpdateObject({
             oldObject: object,
             key: "title",
@@ -81,6 +84,7 @@ const BlockRenderer: FC<{
     };
 
     return (
+        // eslint-disable-next-line react/jsx-no-useless-fragment
         <>
             {object && (
                 <BlockTypeRenderer

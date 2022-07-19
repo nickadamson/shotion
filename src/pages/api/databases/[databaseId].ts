@@ -180,6 +180,44 @@ async function updateDatabase(databaseId: string, databaseData: P.DatabaseUpdate
 
 // for sqlite
 export function parseDbJSON(db: DatabaseWRelations): ParsedDatabase {
+    console.log(db);
+    console.log(1);
+    const title = JSON.parse(db.title);
+    console.log(2);
+    const description = JSON.parse(db.description);
+    console.log(3);
+    const icon = JSON.parse(db.icon);
+    console.log(4);
+    const cover = JSON.parse(db.cover);
+    console.log(5);
+    const properties = db?.properties?.map((property) => ({
+        ...property,
+        details: JSON?.parse((property?.details as string) ?? undefined),
+    }));
+    console.log(6);
+    const childrenPages = db?.childrenPages?.map((page) => {
+        const parsedPage = {
+            ...page,
+            title: JSON.parse((page?.title as string) ?? undefined),
+            icon: JSON.parse((page?.icon as string) ?? undefined),
+            cover: JSON.parse((page?.cover as string) ?? undefined),
+            propertyValues: JSON.parse((page?.propertyValues as string) ?? undefined),
+        };
+        return { ...parsedPage };
+    });
+    console.log(7);
+    const views = db?.views?.map((view) => {
+        const parsedView = {
+            ...view,
+            format: {
+                ...view.format,
+                details: JSON.parse((view?.format?.details as string) ?? undefined),
+            },
+        };
+
+        return parsedView;
+    });
+    console.log(8);
     const parsed = {
         ...db,
         title: JSON.parse(db?.title as string) ?? undefined,
