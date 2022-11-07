@@ -143,7 +143,6 @@ model Format {
   parentViewId String? @unique
   parentPage   Page?   @relation("PageFormat", fields: [parentPageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   parentPageId String? @unique
-
 }
 
 enum BLOCKTYPE {
