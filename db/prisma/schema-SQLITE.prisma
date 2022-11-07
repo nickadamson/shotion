@@ -1,6 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["filterJson"]
+  provider = "prisma-client-js"
 }
 
 generator jsonSchema {
@@ -10,18 +9,138 @@ generator jsonSchema {
 
 datasource db {
   provider = "sqlite"
-  url      = "../shotion.sqlite3"
+  url      = "file:../shotion.sqlite3"
 }
 
 model User {
-  id String @id @default(uuid())
+  id       String  @id @default(uuid())
+  username String  @unique
+  isAdmin  Boolean @default(false)
+
+  databases            Database[] @relation("CreatedDatabases")
+  pages                Page[]     @relation("CreatedPages")
+  blocks               Block[]    @relation("CreatedBlocks")
+  lastUpdatedDatabases Database[] @relation("LastUpdatedDatabases")
+  lastUpdatedPages     Page[]     @relation("LastUpdatedPages")
+  lastUpdatedBlocks    Block[]    @relation("LastUpdatedBlocks")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  isAdmin Boolean @default(false)
-
-  username String @unique
-
 }
 
+model Database {
+  id          String  @id @default(uuid())
+  object      String  @default("database")
+  isWorkspace Boolean @default(false)
+  isInline    Boolean @default(false)
+  type        String  @default("database")
+  title       String?
+  description String?
+  icon        String?
+  cover       String?
+
+  properties    Property[] @relation("Columns")
+  views         View[]     @relation("Views")
+  parentPage    Page?      @relation("PageDbs", fields: [parentPageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parentPageId  String?
+  parentBlock   Block?     @relation("BlockDbs", fields: [parentBlockId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parentBlockId String?
+  childrenPages Page[]     @relation("Rows")
+
+  createdAt   DateTime @default(now())
+  createdBy   User?    @relation("CreatedDatabases", fields: [createdById], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdById String?
+  updatedAt   DateTime @updatedAt
+  updatedBy   User?    @relation("LastUpdatedDatabases", fields: [updatedById], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  updatedById String?
+  archived    Boolean  @default(false)
+}
+
+model Page {
+  id             String  @id @default(uuid())
+  object         String  @default("page")
+  isWorkspace    Boolean @default(false)
+  type           String  @default("page")
+  title          String?
+  icon           String?
+  cover          String?
+  propertyValues String?
+
+  format         Format?    @relation("PageFormat")
+  parentDb       Database?  @relation("Rows", fields: [parentDbId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parentDbId     String?
+  parentPage     Page?      @relation("PagePages", fields: [parentPageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parentPageId   String?
+  parentBlock    Block?     @relation("BlockPages", fields: [parentBlockId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parentBlockId  String?
+  childrenDbs    Database[] @relation("PageDbs")
+  childrenPages  Page[]     @relation("PagePages")
+  childrenBlocks Block[]    @relation("PageBlocks")
+
+  createdAt   DateTime @default(now())
+  createdBy   User?    @relation("CreatedPages", fields: [createdById], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdById String?
+  updatedAt   DateTime @updatedAt
+  updatedBy   User?    @relation("LastUpdatedPages", fields: [updatedById], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  updatedById String?
+  archived    Boolean  @default(false)
+}
+
+model Block {
+  id      String  @id @default(uuid())
+  object  String  @default("block")
+  type    String  @default("text")
+  details String?
+
+  parentPage     Page?      @relation("PageBlocks", fields: [parentPageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parentPageId   String?
+  parentBlock    Block?     @relation("BlockBlocks", fields: [parentBlockId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parentBlockId  String?
+  childrenDbs    Database[] @relation("BlockDbs")
+  childrenPages  Page[]     @relation("BlockPages")
+  childrenBlocks Block[]    @relation("BlockBlocks")
+
+  createdAt   DateTime @default(now())
+  createdBy   User?    @relation("CreatedBlocks", fields: [createdById], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdById String?
+  updatedAt   DateTime @updatedAt
+  updatedBy   User?    @relation("LastUpdatedBlocks", fields: [updatedById], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  updatedById String?
+  archived    Boolean  @default(false)
+}
+
+model Property {
+  id      String  @id @default(uuid())
+  object  String  @default("property")
+  type    String  @default("text")
+  name    String?
+  details String?
+
+  parentDb   Database @relation("Columns", fields: [parentDbId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parentDbId String
+}
+
+model View {
+  id      String  @id @default(uuid())
+  object  String  @default("view")
+  type    String  @default("table")
+  default Boolean @default(false)
+  name    String?
+
+  format     Format?   @relation("ViewFormat")
+  parentDb   Database? @relation("Views", fields: [parentDbId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parentDbId String?
+}
+
+model Format {
+  id      String  @id @default(uuid())
+  object  String  @default("format")
+  order   String?
+  details String?
+
+  parentView   View?   @relation("ViewFormat", fields: [parentViewId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parentViewId String? @unique
+  parentPage   Page?   @relation("PageFormat", fields: [parentPageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parentPageId String? @unique
+
+}

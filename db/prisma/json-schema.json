@@ -7,6 +7,49 @@
         "id": {
           "type": "string"
         },
+        "username": {
+          "type": "string"
+        },
+        "isAdmin": {
+          "type": "boolean",
+          "default": false
+        },
+        "databases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Database"
+          }
+        },
+        "pages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Page"
+          }
+        },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Block"
+          }
+        },
+        "lastUpdatedDatabases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Database"
+          }
+        },
+        "lastUpdatedPages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Page"
+          }
+        },
+        "lastUpdatedBlocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Block"
+          }
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time"
@@ -14,13 +57,647 @@
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "Database": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
         },
-        "isAdmin": {
+        "object": {
+          "type": "string",
+          "default": "database"
+        },
+        "isWorkspace": {
           "type": "boolean",
           "default": false
         },
-        "username": {
+        "isInline": {
+          "type": "boolean",
+          "default": false
+        },
+        "type": {
+          "type": "string",
+          "default": "database",
+          "enum": [
+            "database",
+            "collectionView",
+            "collectionViewPage",
+            "page",
+            "childPage",
+            "childDatabase",
+            "table",
+            "tableRow",
+            "column",
+            "columnList",
+            "heading1",
+            "heading2",
+            "heading3",
+            "text",
+            "bulletedList",
+            "numberedList",
+            "toDo",
+            "quote",
+            "tableOfContents",
+            "divider",
+            "toggle",
+            "bookmark",
+            "equation",
+            "callout",
+            "image",
+            "embed",
+            "video",
+            "file",
+            "code",
+            "alias",
+            "other"
+          ]
+        },
+        "title": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "description": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "icon": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "cover": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "properties": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Property"
+          }
+        },
+        "views": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/View"
+          }
+        },
+        "parentPage": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Page"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "parentBlock": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Block"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "childrenPages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Page"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "createdBy": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/User"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedBy": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/User"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "archived": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "Page": {
+      "type": "object",
+      "properties": {
+        "id": {
           "type": "string"
+        },
+        "object": {
+          "type": "string",
+          "default": "page"
+        },
+        "isWorkspace": {
+          "type": "boolean",
+          "default": false
+        },
+        "type": {
+          "type": "string",
+          "default": "page",
+          "enum": [
+            "database",
+            "collectionView",
+            "collectionViewPage",
+            "page",
+            "childPage",
+            "childDatabase",
+            "table",
+            "tableRow",
+            "column",
+            "columnList",
+            "heading1",
+            "heading2",
+            "heading3",
+            "text",
+            "bulletedList",
+            "numberedList",
+            "toDo",
+            "quote",
+            "tableOfContents",
+            "divider",
+            "toggle",
+            "bookmark",
+            "equation",
+            "callout",
+            "image",
+            "embed",
+            "video",
+            "file",
+            "code",
+            "alias",
+            "other"
+          ]
+        },
+        "title": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "icon": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "cover": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "propertyValues": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "format": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Format"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "parentDb": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Database"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "parentPage": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Page"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "parentBlock": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Block"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "childrenDbs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Database"
+          }
+        },
+        "childrenPages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Page"
+          }
+        },
+        "childrenBlocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Block"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "createdBy": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/User"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedBy": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/User"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "archived": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "Block": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "object": {
+          "type": "string",
+          "default": "block"
+        },
+        "type": {
+          "type": "string",
+          "default": "text",
+          "enum": [
+            "database",
+            "collectionView",
+            "collectionViewPage",
+            "page",
+            "childPage",
+            "childDatabase",
+            "table",
+            "tableRow",
+            "column",
+            "columnList",
+            "heading1",
+            "heading2",
+            "heading3",
+            "text",
+            "bulletedList",
+            "numberedList",
+            "toDo",
+            "quote",
+            "tableOfContents",
+            "divider",
+            "toggle",
+            "bookmark",
+            "equation",
+            "callout",
+            "image",
+            "embed",
+            "video",
+            "file",
+            "code",
+            "alias",
+            "other"
+          ]
+        },
+        "details": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "parentPage": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Page"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "parentBlock": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Block"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "childrenDbs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Database"
+          }
+        },
+        "childrenPages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Page"
+          }
+        },
+        "childrenBlocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Block"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "createdBy": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/User"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedBy": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/User"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "archived": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "Property": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "object": {
+          "type": "string",
+          "default": "property"
+        },
+        "type": {
+          "type": "string",
+          "default": "text",
+          "enum": [
+            "title",
+            "text",
+            "number",
+            "select",
+            "multiselect",
+            "date",
+            "person",
+            "file",
+            "checkbox",
+            "url",
+            "email",
+            "phoneNumber",
+            "formula",
+            "relation",
+            "createdTime",
+            "createdBy",
+            "lastEditedTime",
+            "lastEditedBy",
+            "other"
+          ]
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "details": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "parentDb": {
+          "$ref": "#/definitions/Database"
+        }
+      }
+    },
+    "View": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "object": {
+          "type": "string",
+          "default": "view"
+        },
+        "type": {
+          "type": "string",
+          "default": "table",
+          "enum": [
+            "table",
+            "gallery",
+            "list",
+            "board",
+            "calendar",
+            "other"
+          ]
+        },
+        "default": {
+          "type": "boolean",
+          "default": false
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "format": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Format"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "parentDb": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Database"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "Format": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "object": {
+          "type": "string",
+          "default": "format"
+        },
+        "order": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "details": {
+          "type": [
+            "number",
+            "string",
+            "boolean",
+            "object",
+            "array",
+            "null"
+          ]
+        },
+        "parentView": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/View"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "parentPage": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Page"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     }
@@ -29,6 +706,24 @@
   "properties": {
     "user": {
       "$ref": "#/definitions/User"
+    },
+    "database": {
+      "$ref": "#/definitions/Database"
+    },
+    "page": {
+      "$ref": "#/definitions/Page"
+    },
+    "block": {
+      "$ref": "#/definitions/Block"
+    },
+    "property": {
+      "$ref": "#/definitions/Property"
+    },
+    "view": {
+      "$ref": "#/definitions/View"
+    },
+    "format": {
+      "$ref": "#/definitions/Format"
     }
   }
 }

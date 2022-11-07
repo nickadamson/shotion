@@ -1,0 +1,149 @@
+import { ChangeEvent, Dispatch, FC, ReactNode, SetStateAction } from "react";
+
+import { ParsedBlock } from "src/pages/api/blocks/[blockId]";
+import { ParsedDatabase } from "src/pages/api/databases/[databaseId]";
+import { ParsedPage } from "src/pages/api/pages/[pageId]";
+
+import Heading from "../Blocks/Heading";
+import PageTitle from "../Blocks/PageTitle";
+import TextArea from "../Blocks/TextArea";
+import DatabaseViewer from "../Database";
+
+import { useWorkspaceContext } from "./Context";
+
+interface BlockTypeRendererProps {
+    block: ParsedDatabase | ParsedPage | ParsedBlock;
+    level: number;
+    temporaryValue?: any;
+    setTemporaryValue?: Dispatch<SetStateAction<any>>;
+    updateTitle: () => Promise<void>;
+    updateText: () => Promise<void>;
+    handleChange: (event: ChangeEvent<HTMLInputElement>) => void;
+    updateMethod: (updated: any) => Promise<boolean>;
+    children?: ReactNode;
+}
+
+export const BlockTypeRenderer: FC<BlockTypeRendererProps> = (props) => {
+    const ctx = useWorkspaceContext();
+    const { fullPage } = ctx;
+
+    const { block, level, temporaryValue, setTemporaryValue, updateTitle, updateText, handleChange, children } = props;
+
+    switch (block.type) {
+        case "collectionViewPage":
+        // fallthrough
+        case "page":
+            if (level === 0) {
+                if (fullPage) {
+                    return (
+                        <main>
+                            {/* <AddElementDropdown block={block} /> */}
+                            <PageTitle
+                                temporaryValue={temporaryValue}
+                                handleChange={handleChange}
+                                updateTitle={updateTitle}
+                                level={level}
+                            />
+
+                            {block.type !== "collectionViewPage" && (
+                                <article>
+                                    {children}
+                                    {/* TODO ADD NEW BLOCK */}
+                                    <span>++++</span>
+                                </article>
+                            )}
+                        </main>
+                    );
+                }
+                return <main>{block.type !== "collectionViewPage" && children}</main>;
+            }
+
+        case "heading1":
+        // fallthrough
+        case "heading2":
+        // fallthrough
+        case "heading3": {
+            return (
+                <Heading
+                    temporaryValue={temporaryValue}
+                    headingType={block.type}
+                    handleChange={handleChange}
+                    updateHeading={updateText}
+                    level={level}
+                    // color={color}
+                />
+            );
+        }
+
+        case "divider":
+            return <hr className="p-0 mx-6 w-full border-t-0 border-opacity-10 border-neutral-800" />;
+
+        case "text":
+            return (
+                <TextArea temporaryValue={temporaryValue} handleChange={handleChange} updateText={updateText}>
+                    {children}
+                </TextArea>
+            );
+
+        case "columnList":
+            return <div>{children}</div>;
+
+        case "column": {
+            // note: notion uses 46px
+            const spacerWidth = `min(32px, 4vw)`;
+            const ratio = block?.format?.columnRatio || 0.5;
+            const columns = 2;
+            //   parent?.content?.length || Math.max(2, Math.ceil(1.0 / ratio));
+
+            const width = `calc((100% - (${columns - 1} * ${spacerWidth})) * ${ratio})`;
+            const style = { width };
+
+            return (
+                <>
+                    <div>{children}</div>
+
+                    <div />
+                </>
+            );
+        }
+
+        case "childDatabase":
+            if (block?.object === "block") {
+                return <>{children}</>;
+            }
+            if (block?.object === "database") {
+                // if (block?.defaultView?.type === "table") {
+                // database renderer/wrapper here
+                return (
+                    <DatabaseViewer
+                        database={block as ParsedDatabase}
+                        temporaryTitleValue={temporaryValue}
+                        handleTitleChange={handleChange}
+                        updateTitle={updateTitle}
+                    />
+                );
+            }
+
+        case "toggle":
+            return (
+                <details>
+                    <summary>
+                        {/* <TextArea
+                handleChange={handleChange}
+                temporaryValue={temporaryValue}
+                updateText={updateText}
+              /> */}
+                    </summary>
+
+                    {children}
+                </details>
+            );
+
+        default:
+            if (process.env.NODEENV !== "production") {
+                console.log(`Unsupported type ${(block as any).type}`, JSON.stringify(block, null, 2));
+            }
+
+            return <div />;
+    }
+};

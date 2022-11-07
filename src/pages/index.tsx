@@ -1,16 +1,52 @@
 import type { NextPage } from "next";
-import Head from "next/head";
-import Image from "next/image";
-import ActivePage from "@/components/ActivePage";
+import { useEffect, useMemo, useState } from "react";
+
 import Menu from "@/components/Menu/index";
+import { WorkspaceRenderer } from "@/components/Wrappers/WorkspaceRenderer";
+import useWorkspaces, { Workspace } from "@/hooks/useWorkspaces";
 
 const Home: NextPage = () => {
-  return (
-    <>
-      <Menu />
-      <ActivePage />
-    </>
-  );
+    const { workspaces, spacesLoading, spacesError } = useWorkspaces();
+    const workspacesMemoed = useMemo(() => workspaces, [workspaces]);
+
+    const [rootPage, setRootPage] = useState<Workspace>();
+
+    useEffect(() => {
+        if (!rootPage && workspacesMemoed !== undefined) {
+            setRootPage(workspacesMemoed[0]);
+        }
+    }, [rootPage, workspacesMemoed]);
+
+    console.log({ workspaces, rootPage });
+
+    return (
+        <div className="">
+            {spacesLoading && <p>loading</p>}
+            {!spacesLoading && !spacesError && rootPage && (
+                <div className="flex w-full min-w-full h-full min-h-full">
+                    <Menu
+                        workspaces={workspacesMemoed ?? []}
+                        spacesLoading={spacesLoading}
+                        spacesError={spacesError}
+                        rootPage={rootPage}
+                        setRootPage={setRootPage}
+                    />
+                    {/* <div
+                        className="ml-72 w-auto h-screen"
+                        // className="body"
+                    > */}
+                    <div className="pl-8 w-min h-full bg-gray-100">
+                        <WorkspaceRenderer
+                            workspaceObject={rootPage.object as "database" | "page"}
+                            workspaceId={rootPage.id}
+                            fullPage
+                        />
+                    </div>
+                    {/* </div> */}
+                </div>
+            )}
+        </div>
+    );
 };
 
 export default Home;
