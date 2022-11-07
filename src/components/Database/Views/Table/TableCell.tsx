@@ -1,6 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
-/* eslint-disable import/no-cycle */
 import { BLOCKTYPE, Prisma } from "@prisma/client";
 import { Cell, Column, ColumnDef, Row, Table } from "@tanstack/react-table";
 import { FC, forwardRef, useEffect, useState } from "react";
@@ -86,7 +83,6 @@ const TableCell: FC<TableCellProps> = forwardRef<HTMLTableColElement, TableCellP
 
         useEffect(() => {
             setValue(getValue());
-            // eslint-disable-next-line react-hooks/exhaustive-deps
         }, []);
 
         // const [property, setProperty] = useState({

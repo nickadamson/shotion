@@ -10,12 +10,9 @@ import { ParsedPage } from "src/pages/api/pages/[pageId]";
 import { formatRTO } from "src/utils";
 
 import { BlockTypeRenderer } from "./BlockTypeRenderer";
-// eslint-disable-next-line import/no-cycle
 import { Renderer } from "./WorkspaceRenderer";
 
-// eslint-disable-next-line import/prefer-default-export
 export function HookWrapper({ id, objectType, level, ...props }: { id: string; objectType: string; level: number }) {
-    // eslint-disable-next-line default-case
     switch (objectType) {
         case "database":
             return <UseDatabaseWrapper id={id} level={level} {...props} />;
@@ -84,7 +81,6 @@ const BlockRenderer: FC<{
     };
 
     return (
-        // eslint-disable-next-line react/jsx-no-useless-fragment
         <>
             {object && (
                 <BlockTypeRenderer

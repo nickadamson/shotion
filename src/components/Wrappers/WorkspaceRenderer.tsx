@@ -2,7 +2,6 @@ import { FC } from "react";
 
 import { WorkspaceContextProvider } from "./Context";
 
-// eslint-disable-next-line import/no-cycle
 import { HookWrapper } from "./index";
 
 export const WorkspaceRenderer: FC<{

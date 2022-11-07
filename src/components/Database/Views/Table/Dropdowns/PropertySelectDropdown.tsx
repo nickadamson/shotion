@@ -6,7 +6,6 @@ type Props = {
     children: Node;
 };
 
-// eslint-disable-next-line react/function-component-definition
 const PropertySelectDropdown = ({ setShowDropdown, showDropdown, children }: Props) => {
     const ref: MutableRefObject<Element | undefined> = useRef();
     const [transform, setTransform] = useState("");

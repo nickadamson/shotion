@@ -1,4 +1,3 @@
-/* eslint-disable array-callback-return */
 import { Page } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
 

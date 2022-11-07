@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/click-events-have-key-events */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
 import { Dispatch, FC, SetStateAction, useRef, useState } from "react";
 import { useSWRConfig } from "swr";
 

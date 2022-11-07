@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
 import { Table, Header, Column } from "@tanstack/react-table";
 import { FC } from "react";
 import { useSWRConfig } from "swr";
@@ -7,7 +5,6 @@ import { useSWRConfig } from "swr";
 import { ParsedPage } from "src/pages/api/pages/[pageId]";
 import { handleNewProperty } from "src/utils/api";
 
-// eslint-disable-next-line import/no-cycle
 import { TableMeta } from ".";
 
 type TableActionsProps = {

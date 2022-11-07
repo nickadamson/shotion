@@ -1,5 +1,3 @@
-/* eslint-disable consistent-return */
-/* eslint-disable array-callback-return */
 import { ChangeEvent, FC, useEffect, useReducer } from "react";
 
 // import { dbReducer } from "@/hooks/useDatabaseReducer";
