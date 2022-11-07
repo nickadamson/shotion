@@ -1,8 +1,6 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable import/no-cycle */
-import AddIcon from "@material-ui/icons/Add";
-import DragIndicatorIcon from "@material-ui/icons/DragIndicator";
 import { BLOCKTYPE, Prisma } from "@prisma/client";
 import { Cell, Column, ColumnDef, Row, Table } from "@tanstack/react-table";
 import { FC, forwardRef, useEffect, useState } from "react";
@@ -209,13 +207,14 @@ const TableCell: FC<TableCellProps> = forwardRef<HTMLTableColElement, TableCellP
                                 <div className="absolute mr-2 -translate-x-full">
                                     <div className="flex flex-row">
                                         <span className={showRowOptions ? "opacity-100" : "opacity-0"}>
-                                            <AddIcon onClick={handleNewRow} />
+                                            {/* <AddIcon onClick={handleNewRow} /> */}
+                                            +Icon
                                         </span>
 
                                         <div>
                                             <span className={showRowOptions ? "opacity-100" : "opacity-0"}>
-                                                <DragIndicatorIcon onClick={handleDeleteRow} />
-
+                                                {/* <DragIndicatorIcon onClick={handleDeleteRow} /> */}
+                                                DragIcon
                                                 {/* {showRowDropdown && (
                                                     <RowDropdown
                                                         setShowDropdown={setShowRowDropdown}

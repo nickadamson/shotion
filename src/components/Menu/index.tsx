@@ -30,7 +30,7 @@ const Menu: FC<{
     console.log(workspaces);
 
     return (
-        <div className="fixed z-10 px-2 w-60 h-full">
+        <div className="px-4 py-2 w-60 h-full min-w-fit max-w-60">
             {!spacesLoading && !spacesError && rootPage !== undefined && (
                 <>
                     <MenuHeader />

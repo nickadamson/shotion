@@ -2,13 +2,13 @@
 /* eslint-disable array-callback-return */
 import { ChangeEvent, FC, useEffect, useReducer } from "react";
 
-import { dbReducer } from "@/hooks/useDatabaseReducer";
+// import { dbReducer } from "@/hooks/useDatabaseReducer";
 import { ParsedDatabase } from "src/pages/api/databases/[databaseId]";
 
 import PageTitle from "../Blocks/PageTitle";
 
 import TableView, { initTableState } from "./Views/Table";
-import ViewSelect from "./Views/ViewSelect";
+// import ViewSelect from "./Views/ViewSelect";
 
 interface DatabaseViewerProps {
     database: ParsedDatabase;
@@ -25,7 +25,7 @@ const ViewHeader: FC<Partial<DatabaseViewerProps> & { isInline: boolean }> = ({
 }) =>
     isInline ? (
         <>
-            <ViewSelect />
+            {/* <ViewSelect /> */}
             <PageTitle
                 temporaryValue={temporaryTitleValue}
                 handleChange={handleTitleChange}
@@ -39,7 +39,7 @@ const ViewHeader: FC<Partial<DatabaseViewerProps> & { isInline: boolean }> = ({
                 handleChange={handleTitleChange}
                 updateTitle={updateTitle}
             />
-            <ViewSelect />
+            {/* <ViewSelect /> */}
         </>
     );
 

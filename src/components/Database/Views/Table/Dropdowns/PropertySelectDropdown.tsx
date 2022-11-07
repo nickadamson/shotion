@@ -1,8 +1,3 @@
-import CheckBoxOutlinedIcon from "@material-ui/icons/CheckBoxOutlined";
-import EventNoteIcon from "@material-ui/icons/EventNote";
-import LinkIcon from "@material-ui/icons/Link";
-import ListIcon from "@material-ui/icons/List";
-import SubjectIcon from "@material-ui/icons/Subject";
 import { Dispatch, FC, MutableRefObject, SetStateAction, useEffect, useRef, useState, Node } from "react";
 
 type Props = {

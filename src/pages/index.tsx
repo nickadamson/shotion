@@ -23,7 +23,7 @@ const Home: NextPage = () => {
         <div className="">
             {spacesLoading && <p>loading</p>}
             {!spacesLoading && !spacesError && rootPage && (
-                <div className="">
+                <div className="flex w-full min-w-full h-full min-h-full">
                     <Menu
                         workspaces={workspacesMemoed ?? []}
                         spacesLoading={spacesLoading}
@@ -31,18 +31,18 @@ const Home: NextPage = () => {
                         rootPage={rootPage}
                         setRootPage={setRootPage}
                     />
-                    <div
+                    {/* <div
                         className="ml-72 w-auto h-screen"
                         // className="body"
-                    >
-                        <div className="w-full h-full">
-                            <WorkspaceRenderer
-                                workspaceObject={rootPage.object as "database" | "page"}
-                                workspaceId={rootPage.id}
-                                fullPage
-                            />
-                        </div>
+                    > */}
+                    <div className="pl-8 w-min h-full bg-gray-100">
+                        <WorkspaceRenderer
+                            workspaceObject={rootPage.object as "database" | "page"}
+                            workspaceId={rootPage.id}
+                            fullPage
+                        />
                     </div>
+                    {/* </div> */}
                 </div>
             )}
         </div>

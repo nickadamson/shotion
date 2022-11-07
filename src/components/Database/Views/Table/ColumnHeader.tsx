@@ -1,4 +1,3 @@
-import { MoreHoriz } from "@material-ui/icons";
 import { Column, Header, Table } from "@tanstack/react-table";
 import { FC, useState } from "react";
 
@@ -38,11 +37,11 @@ const ColumnHeader: FC<ColumnHeaderProps> = (props: ColumnHeaderProps) => {
     }
 
     const handleDeleteColumn = async () => {
-        const success = await handleDeleteProperty(property);
+        // const success = await handleDeleteProperty(property);
 
-        if (success) {
-            // todo
-        }
+        // if (success) {
+        //     // todo
+        // }
 
         setShowDropdown(false);
     };
@@ -71,9 +70,7 @@ const ColumnHeader: FC<ColumnHeaderProps> = (props: ColumnHeaderProps) => {
                             {/* <span >
                 &#43;
               </span> */}
-                            <div>
-                                <MoreHoriz onClick={() => setShowDropdown(!showDropdown)} />
-                            </div>
+                            <div>MoreIcon{/* <MoreHoriz onClick={() => setShowDropdown(!showDropdown)} /> */}</div>
                             {/* <i
                 onClick={() => setShowDropdown(!showDropdown)}
               /> */}
